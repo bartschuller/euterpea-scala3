@@ -56,6 +56,57 @@ effect of a melody.
         val m = removeZeros(cut(d, x))
         (g4, inState, trimTo(seg1, m))
 /*
+The bassFun is similar to a walking bass, but plays relatively few 
+pitches per segment.
+*/
+    val bassRange = 36 to 50
+
+    def bassFun:PartFun[AV, HypnoState] = (inState, seg1, seg2opt, hist, g0) =>
+        val seg2 = seg2opt.get
+        val nbr = inState.nextBassPitch
+        val thisS = seg1.chordCtxt.scale
+        val nextS = seg2.chordCtxt.scale
+        val (g1, rbr) = choose(g0, bassRange.filter(p => (p mod 12) == thisS.head))
+        val thisRoot = if nbr > 0 then nbr else rbr
+        val (g2, nextRoot) = choose(g1, bassRange.filter(p => (p mod 12) == nextS.head))
+        val fifthsA = bassRange.filter(p => (p mod 12) == thisS(4))
+        val fifthsB = fifthsA.filter(p => p < (thisRoot max nextRoot) && p > (thisRoot min nextRoot))
+        val (g3, thisFifth) = choose(g2, if fifthsB.isEmpty then fifthsA else fifthsB)
+        val (r, g4) = randomR((0.0, 1.0), g3)
+        val d = seg1.segDur
+        val nrDown = if nextRoot-1 < 36 then nextRoot+1 else nextRoot-1
+        val fDown = if thisFifth-1 < 36 then thisFifth+1 else thisFifth
+        val pat1 = note(d-hn, (thisRoot, 100)) :+: note(hn, (thisFifth, 100))
+        val pat2 = note(d-hn, (thisRoot, 100)) :+: note(hn, (thisRoot+1, 100))
+        val pat3 = note(d-hn, (thisRoot, 100)) :+: note(hn, (nrDown, 100))
+        val pat4 = note(d-hn, (thisRoot, 100)) :+: note(hn, (nextRoot+1, 100))
+        val pat5 = note(d-hn, (thisRoot, 100)) :+: note(hn, (nrDown, 100))
+        val pat6 = note(d-tn, (thisRoot, 100)) :+: note(tn, (nextRoot+1, 60))
+        val pat7 = note(d-tn, (thisRoot, 100)) :+: note(tn, (nrDown, 60))
+        val pat8 = note(d-hn-tn, (thisRoot, 100)) :+: note(tn, (fDown, 60)) :+: note(hn, (thisFifth, 100))
+        val pat9 = note(d-hn-tn, (thisRoot, 100)) :+: note(tn, (fDown, 60)) :+: note(hn, (thisFifth, 100))
+        val outState = inState.copy(nextBassPitch = nextRoot)
+        val pats = if d > wn then Seq(pat1, pat2, pat3, pat4)
+                    else Seq(pat1, pat2, pat3, pat4, pat5, pat6, pat7, pat8, pat9)
+        val (g5, m) = choose(g4, pats)
+        (g5, outState, trimTo(seg1, m))
+/*
+The chordFun function defines the behavior for the grand piano. It creates 
+arpeggiated chords.
+*/
+    def chordFun:PartFun[AV, HypnoState] = (inState, seg1, seg2, hist, g) =>
+        val s = seg1.chordCtxt.scale
+        val (g1, pcs) = pickChordPCs(s, g)
+        val d = seg1.segDur
+        val (g2, pcsp) = permute(g1, pcs)
+        val ps = pcsp.map(_ + 60)
+        val mPat1 = chord(ps.zipWith(LazyList.from(0))((p, i) => rest(sn*Rat(i)) :+: note(d, (p, 80))))
+        val mPat2 = rest(en) :+: mPat1
+        val mPat3 = rest(den) :+: mPat1
+        val (g3, mPat) = choose(g2, Seq(mPat1, mPat2, mPat3))
+        val m = trimTo(seg1, mPat)
+        (g3, inState, m)
+/*
 The randomLeadSheet function generates a randomized lead sheet
 where there are contiguous groups of segements in the same 
 randomly chosen key. Within each group, the chords are random
@@ -87,13 +138,15 @@ run the jazz band on it.
     val rls: LeadSheet[AV] = randomLeadSheet(StdGen.mkStdGen(6))
 
     val myJB: JazzBand[AV, HypnoState] = LazyList(
-        JazzPart(Harmony, Celesta, celestaFun, nullState))
+        JazzPart(Harmony, Celesta, celestaFun, nullState),
+        JazzPart(Bass, AcousticBass, bassFun, nullState),
+        JazzPart(Harmony, AcousticGrandPiano, chordFun, nullState))
     
     val hypnotize120bpm = runBand(myJB, LazyList.empty, rls, StdGen.mkStdGen(18))
     val hypnotize = tempo(Rat(6)/10, hypnotize120bpm)
 
     def main(args: Array[String]): Unit =
-        val pf = perform(cut(10, hypnotize))
+        val pf = perform(cut(20, hypnotize))
         val sequence = toMidi(pf)
         MidiSystem.write(sequence, 1, "hypnotize.mid")
         val sequencer = MidiSystem.sequencer

@@ -206,6 +206,7 @@ object Music
     val dwn: Dur = wn*3/2
     val dhn: Dur = wn*3/4
     val dqn: Dur = wn*3/8
+    val den: Dur = wn*3/16
 
     def absPitch(p: Pitch): AbsPitch = p match
         case (pc, oct) => 12*(oct+1) + pcToInt(pc)

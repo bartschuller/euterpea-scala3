@@ -1,10 +1,18 @@
 package utils
 
 trait IntOps
+    /** modulus with positive result for positive b */
     def (a: Int) mod (b: Int) =
         val x = a % b; if (x < 0) x + b else x
 
 given IntOps
+
+trait SeqOps
+    /** combine to elements of 2 sequences using a function */
+    def (as: Seq[A]) zipWith[A,B,C] (bs: Seq[B]) (f: (A, B) => C): Seq[C] =
+        as.zip(bs).map((a, b) => f(a,b))
+
+given SeqOps
 
 trait RandomGen[G <: RandomGen[_]]
     def next: (Int, G)
