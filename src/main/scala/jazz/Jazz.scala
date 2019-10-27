@@ -123,7 +123,6 @@ object JazzTypes
         jb match
         case Nil => LazyList.empty
         case jp #:: jps =>
-            println(s"Chord: ${seg1.chordCtxt}")
             val (g2, st, m) = jp.partFun(jp.state, seg1, seg2, h, g)
             val m2 = instrument(jp.instr, m)
             

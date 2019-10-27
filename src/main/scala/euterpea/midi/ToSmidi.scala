@@ -63,7 +63,6 @@ object ToSmidi
     def mevsToMessages(upm: UserPatchMap, ipf: (InstrumentName, Performance)): List[MidiEvent] =
         val (inm, pf) = ipf
         val (chan, progNum) = upmLookup(upm, inm)
-        println(s"chan=$chan, prog=$progNum")
         val setupInst = MidiEvent(ProgramChange(chan, progNum), 0)
         val setupTempo = MidiEvent(TempoChange(defST), 0)
         def loop(evs: Performance): List[MidiEvent] =
