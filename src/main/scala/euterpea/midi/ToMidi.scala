@@ -1,6 +1,5 @@
 package euterpea.midi
-import spire.math.Rat
-import spire.implicits.given
+import utils.{given, _}
 import MEvent._
 import Midi._
 import Message._
@@ -79,7 +78,7 @@ object ToMidi
         ((toDelta(t), NoteOn(mChan, p, vp)),
         (toDelta(t+d), NoteOff(mChan, p, vp)))
     
-    def toDelta(t: Rat): Int = (t * Rat(2) * Rat(division)).round.toInt
+    def toDelta(t: Rat): Int = (t * Rat(2) * Rat(division)).round
 
     def insertMEvent(mev1: MidiEvent, mevs: List[MidiEvent]): List[MidiEvent] =
         (mev1, mevs) match

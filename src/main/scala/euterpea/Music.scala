@@ -1,13 +1,8 @@
 package euterpea
-import spire.math.Rat
-import spire.implicits.given
+import utils.{given, _}
 import scala.language.implicitConversions
 
 object Music
-    import scala.util.FromDigits
-    given (given fdbi: FromDigits[BigInt]): FromDigits[Rat]
-        def fromDigits(digits: String): Rat = Rat(fdbi.fromDigits(digits))
-
     type AbsPitch = Int
     type Octave = Int
     type Pitch = (PitchClass, Octave)
@@ -41,7 +36,7 @@ object Music
             case :=:(m1, m2) => m1.mMap(f) :=: m2.mMap(f)
             case Modify(c, m) => Modify(c, m.mMap(f))
     object Music
-        def (m1: Music[A]) :+:[A] (m2: => Music[A]): Music[A] = Music.:+:(m1 #:: LazyList(m2))
+        def [A](m1: Music[A]) :+: (m2: => Music[A]): Music[A] = Music.:+:(m1 #:: LazyList(m2))
 
     enum Control
         case Tempo(r: Rat) // scale the tempo

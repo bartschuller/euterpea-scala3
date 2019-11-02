@@ -1,5 +1,3 @@
-import spire.math.Rat
-import spire.implicits.given
 import utils.{given, _}
 import Random._
 import jazz.JazzTypes._
@@ -83,7 +81,7 @@ of the bass's state.
             val pSpace2 = bassRange.filter(p => scale2.contains(p mod 12))
             val roots2 = pSpace2.filter(p => (p mod 12) == scale2.head)
             val (g1, nextR) = choose(g, roots2)
-            val beats = (seg1.segDur*4).round.toInt
+            val beats = (seg1.segDur*4).round
             val (g2, pitches) = walk(beats, pSpace1, r, nextR, g1)
             val bassLine = line(pitches.map(p => note(qn, p)))
             (g2, NextRoot(nextR), cut(seg1.segDur/4, bassLine))

@@ -1,6 +1,4 @@
-import spire.math.Rat
-import spire.implicits.given
-import utils._
+import utils.{given, _}
 import Random._
 import jazz.JazzTypes._
 import jazz.Utils._

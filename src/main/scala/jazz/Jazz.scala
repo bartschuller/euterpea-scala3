@@ -1,8 +1,7 @@
 package jazz
-import utils._
+import utils.{given, _}
 import euterpea.Music.{given, _}
 import Music._
-import spire.math.Rat
 
 object JazzTypes
 

@@ -11,8 +11,6 @@ The implementation here uses type Music (AbsPitch,Volume) to
 achieve more diverse textures (in Music AbsPitch, the volumes
 are all constant). 
 */
-import spire.math.Rat
-import spire.implicits.given
 import utils.{given, _}
 import Random._
 import euterpea.Music.{given, _}

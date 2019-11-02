@@ -9,8 +9,6 @@ This file demonstrates 2 things:
 
 Part functions are given for drums, bass, chords (piano), and solo.
 */
-import spire.math.Rat
-import spire.implicits.given
 import utils.{given, _}
 import Random._
 import euterpea.Music.{given, _}
@@ -118,7 +116,7 @@ And finally the part function for generating chords.
     def chordFunV[S]: PartFun[AV,S] = (s, seg1, seg2, hist, g) =>
         val pcs = List(0,2,4,6).map(i=> seg1.chordCtxt.scale(i))
         val (g1, ps) = choosePitches(g, pcs, 55 to 69)
-        val measures = (seg1.segDur / 4).ceil.toInt
+        val measures = (seg1.segDur / 4).ceil
         val (g2, rhyths) = chooseN(g1, measures, chordRhythms)
         val rhyth = rhyths.flatten
         def nFun(d: Dur) = chord(ps.map(p=>note(d, (p, 80))))
@@ -153,7 +151,7 @@ a certain level.
 
     def soloFunV: PartFun[AV,BebopState] = (s, seg1, seg2, hist, g0) =>
         val sPSpace = filterByScale(seg1.chordCtxt.scale)(soloPSpace)
-        val n = (seg1.segDur*2).ceil.toInt
+        val n = (seg1.segDur*2).ceil
         val (g1, lp) = if s.lastSoloPitch < 0 then choose(g0, sPSpace) else (g0, s.lastSoloPitch)
         val gs = splitN(g1)
         val ps = SimpleBossa.randMelody(gs(0), sPSpace, lp).take(n)

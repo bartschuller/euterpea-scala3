@@ -1,6 +1,5 @@
 package euterpea.midi
-import spire.math.Rat
-import spire.implicits.given
+import utils.{given, _}
 import euterpea.Music.{given, _}
 import Music._
 import Control._
@@ -121,13 +120,13 @@ object MEvent
                 val t0 = pf.head.eTime
                 val r = x/dur
                 def upd(e: MEvent): MEvent =
-                    e.copy(eVol = (((t-t0)*r + 1) * Rat(e.eVol)).round.toInt)
+                    e.copy(eVol = (((t-t0)*r + 1) * Rat(e.eVol)).round)
                 (pf.map(upd), dur)
             import TempoAttr._
             import Articulation._
             pa match
             case Dyn(Accent(x)) =>
-                (pf.map(e => e.copy(eVol = (Rat(e.eVol)*x).round.toInt)), dur)
+                (pf.map(e => e.copy(eVol = (Rat(e.eVol)*x).round)), dur)
             case Dyn(StdLoudness(l)) =>
                 import StdLoudnessId._
                 l match
@@ -141,7 +140,7 @@ object MEvent
                 case FF => loud(110)
                 case FFF => loud(120)
             case Dyn(Loudness(x)) =>
-                phraseToMEvents(c.copy(mcVol= x.round.toInt), pas, m)
+                phraseToMEvents(c.copy(mcVol= x.round), pas, m)
             case Dyn(Crescendo(x)) => inflate(x)
             case Dyn(Diminuendo(x)) => inflate(-x)
             case Tmp(Ritardando(x)) => stretch(x)

@@ -6,8 +6,6 @@ Scala translation by Bart Schuller
 The implementation here is much like in SimpleWalkingBass.lhs, 
 but it adds ornaments between some pitches.
 */
-import spire.math.Rat
-import spire.implicits.given
 import utils.{given, _}
 import Random._
 import jazz.JazzTypes._
@@ -62,7 +60,7 @@ Now the PartFun, which is basically like the simple walkig bass function.
             val pSpace2 = bassRange.filter(p => scale2.contains(p mod 12))
             val roots2 = pSpace2.filter(p => (p mod 12) == scale2.head)
             val (g1, nextR) = choose(g, roots2)
-            val beats = (seg1.segDur*4).round.toInt
+            val beats = (seg1.segDur*4).round
             val (g2, pitches) = walk(beats, pSpace1, r, nextR, g1)
             val (g3, g4) = g2.split
             val bassLine = bassToMusic(pitches, g3)

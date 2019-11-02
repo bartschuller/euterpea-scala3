@@ -4,14 +4,12 @@ trait IntOps
     /** modulus with positive result for positive b */
     def (a: Int) mod (b: Int) =
         val x = a % b; if (x < 0) x + b else x
-
 given IntOps
 
 trait SeqOps
     /** combine to elements of 2 sequences using a function */
-    def (as: Seq[A]) zipWith[A,B,C] (bs: Seq[B]) (f: (A, B) => C): Seq[C] =
+    def [A,B,C](as: Seq[A]) zipWith (bs: Seq[B]) (f: (A, B) => C): Seq[C] =
         as.zip(bs).map((a, b) => f(a,b))
-
 given SeqOps
 
 trait RandomGen[G <: RandomGen[_]]
@@ -87,8 +85,49 @@ object Random
 trait Enum[A]
     def toEnum(i: Int): A
     def fromEnum(a: A): Int
+    //def enumFrom(a: A): Seq[A]
 object Enum
     def apply[A](given Enum[A]) = summon[Enum[A]]
+
+// later make it generic on scala.math.Integral?
+class Rat(x: Int, y: Int)
+    private def gcd(a: Int, b: Int): Int = if (b == 0) a else gcd(b, a % b)
+    private val g = gcd(x, y)
+    val (numer, denom) =
+        val x1 = x * y.sign
+        val y1 = y.abs
+        val g = gcd(x1, y1).abs
+        (x1/g, y1/g)
+    def +(that: Rat): Rat = Rat(numer * that.denom + that.numer * denom, denom * that.denom)
+    def -(that: Rat): Rat = Rat(numer * that.denom - that.numer * denom, denom * that.denom)
+    def *(that: Rat): Rat = Rat(numer * that.numer, denom * that.denom)
+    def /(that: Rat): Rat = Rat(numer * that.denom, denom * that.numer)
+    def max(that: Rat): Rat = if this >= that then this else that
+    def min(that: Rat): Rat = if this <= that then this else that
+    def <(that: Rat): Boolean = numer * that.denom < that.numer * denom
+    def >(that: Rat): Boolean = numer * that.denom > that.numer * denom
+    def <=(that: Rat): Boolean = numer * that.denom <= that.numer * denom
+    def >=(that: Rat): Boolean = numer * that.denom >= that.numer * denom
+    def toDouble: Double = numer.toDouble / denom.toDouble
+    def unary_- : Rat = Rat(-numer, denom)
+    def ceil: Int = toDouble.ceil.toInt
+    def round: Int = toDouble.round.toInt
+    def toInt: Int = toDouble.toInt
+    def canEqual(a: Any): Boolean = a.isInstanceOf[Rat]
+    override def equals(that: Any): Boolean =
+        that match
+        case that: Rat =>
+            that.canEqual(this) &&
+            numer == that.numer &&
+            denom == that.denom
+        case _ => false
+    override def toString() = s"$numer/$denom"
+object Rat
+    def apply(x: Int, y: Int): Rat = new Rat(x, y)
+    def apply(x: Int): Rat = Rat(x, 1)
+import scala.util.FromDigits
+given FromDigits[Rat]
+    def fromDigits(digits: String): Rat = Rat(digits.toInt)
 
 /**
    * The mapAccumL function behaves like a combination of map and foldl; it applies a function to each element of a list, passing an accumulating parameter from left to right, and returning a final value of this accumulator together with the new list.

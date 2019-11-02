@@ -2,8 +2,6 @@
 Diminime
 (c) 2019 Bart Schuller
 */
-import spire.math.Rat
-import spire.implicits.given
 import utils.{given, _}
 import Random._
 import euterpea.Music.{given, _}

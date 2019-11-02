@@ -14,9 +14,7 @@ harmony, but the lead makes use of a very simplistic piece of state
 information (the last pitch played).
 */
 
-import spire.math.Rat
-import spire.implicits.given
-import utils._
+import utils.{given, _}
 import euterpea.Music.{given, _}
 import Music._
 import euterpea.midi.MEvent._
@@ -81,7 +79,7 @@ boundaries.
             soloFun(LastPitch(p), seg1, seg2, hist, gp)
         case LastPitch(lp) =>
             val sPSpace = filterByScale(seg1.chordCtxt.scale)(soloPSpace)
-            val n = (seg1.segDur * 2).round.toInt
+            val n = (seg1.segDur * 2).round
             val (g1, g2) = g.split
             val ps = randMelody(g, sPSpace, lp).take(n)
             val mel = line(ps.map(p => note(en, p)))

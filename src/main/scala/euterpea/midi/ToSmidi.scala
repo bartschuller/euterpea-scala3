@@ -1,7 +1,6 @@
 package euterpea.midi
 import smidi._
-import spire.math.Rat
-import spire.implicits.given
+import utils.{given, _}
 import MEvent._
 import GeneralMidi._
 import euterpea.Music.InstrumentName
@@ -79,7 +78,7 @@ object ToSmidi
         (MidiEvent(NoteOn(mChan, p, vp), toDelta(t)),
         MidiEvent(NoteOff(mChan, p, vp), toDelta(t+d)))
     
-    def toDelta(t: Rat): Long = (t * Rat(2) * Rat(division)).round.toInt.toLong
+    def toDelta(t: Rat): Long = (t * 2 * Rat(division)).round.toLong
     
     val defUpm: UserPatchMap =
         import InstrumentName._
