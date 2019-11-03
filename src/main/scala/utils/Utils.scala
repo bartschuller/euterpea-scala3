@@ -90,7 +90,7 @@ object Enum
     def apply[A](given Enum[A]) = summon[Enum[A]]
 
 // later make it generic on scala.math.Integral?
-class Rat(x: Int, y: Int)
+class Rat(x: Int, y: Int) derives Eql
     private def gcd(a: Int, b: Int): Int = if (b == 0) a else gcd(b, a % b)
     private val g = gcd(x, y)
     val (numer, denom) =
