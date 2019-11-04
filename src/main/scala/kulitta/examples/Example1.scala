@@ -1,8 +1,11 @@
-package kulitta.examples
-import kulitta.PTGG._
-import kulitta.grammars.MusicGrammars._
+package kulitta
+package examples
+import PTGG._
+import grammars.MusicGrammars._
 import CType._
 import Mode._
+import foregrounds.ClassicalFG._
+import PostProc._
 import utils.{given, _}
 import StdGen.mkStdGen
 
@@ -78,9 +81,10 @@ Now we can map pitches to these chords with a classical chord space.
 We will impose no additional search constraints and just use Kulitta's
 defaults. This step also returns a new generator, g3, that we can use for
 the final step.
-
-> (g3, chords) = classicalCS2 g2 (toAbsChords absStruct) [] 
 */
+    val (g3, chords) = classicalCS2(g2, toAbsChords(absStruct), Nil) 
+
     @main def doStuff =
         println(absStruct)
+        println(chords)
 end Example1

@@ -112,6 +112,25 @@ instead.
             val xs = toPairs(expand(Nil, r.rfun(p))).map(_._2.dur)
             if xs.map(f).exists(_ == true) then List(NT(r.lhs, p)) else r.rfun(p)
         })
+
+    val majScale = Seq(0,2,4,5,7,9,11)
+    val minScale = Seq(0,2,3,5,7,8,10)
+    val dorScale = Seq(0, 2, 3, 5, 7, 9, 10)
+    val phrScale = Seq(0, 1, 3, 5, 7, 8, 10)
+    val lydScale = Seq(0, 2, 4, 6, 7, 9, 11)
+    val mixScale = Seq(0, 2, 4, 5, 7, 9, 10)
+    val locScale = Seq(0, 1, 3, 5, 6, 8, 10)
+
+    def getScale(m: Mode): Seq[AbsPitch] =
+        m match
+        case Major => majScale
+        case Minor => minScale
+        case Dorian => dorScale
+        case Phrygian => phrScale
+        case Lydian => lydScale
+        case Mixolydian => mixScale
+        case Locrian => locScale
+        case m => sys.error(s"(getScale) Scale not defined for mode $m")
 /*
 Modes include the seven usual derivatives of the C-major scale along with
 chromatic and custom options. Note that Major=Ionian and Minor=Aeoloean.

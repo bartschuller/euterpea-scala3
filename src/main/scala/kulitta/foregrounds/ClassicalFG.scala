@@ -1,10 +1,16 @@
-package kulitta.foregrounds
+package kulitta
+package foregrounds
 /*
 Classical Foreground Module
 Donya Quick
 Scala translation by Bart Schuller
 */
-import utils._
+import utils.{given, _}
+import QuotientSpaces._
+import chordspaces.OPTIC._
+import PostProc._
+import Search._
+import Constraints._
 
 object ClassicalFG
     case class CConstants(
@@ -35,5 +41,29 @@ not add a classical foreground. This can be useful for mixing styles.
 >    in  (g3, aChords')
 */
     def classicalCS2(g: StdGen, aChords: Seq[TChord], consts: Constraints): (StdGen, Seq[TChord]) =
+        val justChords = aChords.map(_._3)
+        val (g1, g2) = g.split
+        val (g3, eqs) = classBass(0.8, g2, justChords.map(eqClass(satbOP, opcEq)))
+        val csChords = greedyLet(noCPL(7), nearFall, consts, eqs, g3)
+        val aChordsp = aChords.zipWith(csChords){ case ((a,b,c), d) => (a,b,d) }
+        (g3, aChordsp)
+/*
+The classicalCS2 function uses a stochastic filter over equivalence classes.
+This filter enforces that the bass holds the root with a certain probability 
+(the "thresh" value). If the constraints can't be met, the bass is allowed 
+to deviate from this rule for the sake of producing a result.
+
+> classBass :: Double -> StdGen -> [EqClass AbsChord] -> (StdGen, [EqClass AbsChord])
+> classBass thresh g [] = (g, [])
+> classBass thresh g (e:es) = 
+>     let (r,g') = randomR (0,1.0::Double) g
+>         e' = if r > thresh then e else filter rootFilter e
+>         e'' = if null e' then e else e'
+>         (g'', es') = classBass thresh g es
+>     in  (g'', e'':es') where
+>     rootFilter :: Predicate AbsChord
+>     rootFilter x = or $ map (opcEq x) [[0,0,4,7], [0,0,3,7], [0,0,3,6]]
+*/
+    def classBass(thresh: Double, g: StdGen, ess: Seq[EqClass[AbsChord]]): (StdGen, Seq[EqClass[AbsChord]]) =
         ???
 end ClassicalFG
