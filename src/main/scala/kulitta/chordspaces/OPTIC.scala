@@ -6,7 +6,7 @@ Donya Quick and Paul Hudak
 Scala translation by Bart Schuller
 */
 import QuotientSpaces._
-
+import utils.{given, _}
 object OPTIC
 /*
 Type definitions:
@@ -15,19 +15,28 @@ Type definitions:
     type AbsChord = Seq[Int]
     type Prog = Seq[AbsChord] // Chord progression
 /*
+The makeRange function will generate Z^n for user-specified ranges.
+
+> makeRange :: [(PitchNum, PitchNum)] -> [AbsChord]
+> makeRange = foldr (\(l,u) xs -> [(a:b) | a<-[l..u], b<-xs]) [[]]
+*/
+    def makeRange(pairs: Seq[(PitchNum,PitchNum)]): Seq[AbsChord] =
+        pairs.foldRight(Seq(Seq.empty[Int])) {case ((l, u), xs) => for {
+            a <- l to u
+            b <- xs
+            } yield (a +: b)}
+/*
 ========= O, P, & T IMPLEMENTATION =========
 
 First we will define the octave and transposition operations. 
 For f(x)=y with f in {o, t, p}, x~y for the corresponding 
 equivalence relation (O, T, and P respectively).
 
-> o,p :: [Int] -> AbsChord -> AbsChord
-> o = zipWith (\i x -> x + 12 * i)
-> p s xs = map (xs !!) s
-
-> t :: Int -> AbsChord -> AbsChord
-> t c = map (+c)
 */
+    def o(is: Seq[Int], c: AbsChord): AbsChord =
+        is.zipWith(c) {(i, x) => x + 12 * i }
+    def p(s: Seq[Int], xs: AbsChord): AbsChord =
+        s.map(xs(_))
     def t(c: Int)(ac: AbsChord): AbsChord =
         ac.map(_+c)
 /*
@@ -61,5 +70,10 @@ equivalence relation.
     def opcEq(a: AbsChord, b: AbsChord): Boolean = normOPC(a) == normOPC(b)
 
     def optEq(a: AbsChord, b: AbsChord): Boolean =
-        ???
+        val n = b.length
+        val (ap, bp) = (normT(normOP(a)), normT(normOP(b)))
+        val is = (0 to n).map { k => Seq.fill(k)(1) ++ Seq.fill(n-k)(0) }
+        val s = is.map {i => o(i, bp)}.map { x => normT(normP(x)) }
+        s.exists(_ == ap)
+
 end OPTIC
