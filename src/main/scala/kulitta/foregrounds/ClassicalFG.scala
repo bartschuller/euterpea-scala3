@@ -11,6 +11,8 @@ import chordspaces.OPTIC._
 import PostProc._
 import Search._
 import Constraints._
+import Random.{given, _}
+import euterpea.Music._
 
 object ClassicalFG
     case class CConstants(
@@ -23,6 +25,22 @@ object ClassicalFG
     )
 // A set of default constants that work pretty well in most cases.
     val defConsts = CConstants(2, 3, 0.5, 0.5, 0.8, 7)
+
+    def addFG(c: CConstants, g: StdGen, vs: Seq[Seq[TNote]]): (StdGen, Seq[Seq[TNote]]) =
+        def fgRec(c: CConstants, g: StdGen, i: Int, vs: Seq[Seq[TNote]]) =
+            ???
+        def tieRec(c: CConstants, g: StdGen, vss: Seq[Seq[TNote]]) =
+            ???
+        val (gp, vsp) = fgRec(c, g, 0, vs)
+        tieRec(c, gp, vsp)
+
+    def classicalFGp(g: StdGen, aChordsp: Seq[TChord]): (StdGen, (Music[Pitch], Music[Pitch])) =
+        val (g4, csFG) = addFG(defConsts, g, toVoices(aChordsp).reverse)
+        import InstrumentName._
+        val is = Seq(Bassoon, EnglishHorn, Clarinet, Oboe, SopranoSax)
+        val fgM = vsToMusicI(is, csFG.reverse)
+        val csM = vsToMusicI(is, toVoices(aChordsp))
+        (g4, (csM, fgM))
 /*
 Similarly, there are instances when we may want to use a classical chord space, but
 not add a classical foreground. This can be useful for mixing styles.
@@ -30,17 +48,8 @@ not add a classical foreground. This can be useful for mixing styles.
 > classicalCS :: StdGen -> [RChord] -> Constraints -> (StdGen, [TChord])
 > classicalCS g rcs consts = 
 >     classicalCS2 g (map toAbsChord rcs) consts 
-
-> classicalCS2 :: StdGen -> [TChord] -> Constraints -> (StdGen, [TChord])
-> classicalCS2 g aChords consts = 
->    let justChords = map (\(a,b,c) -> c) aChords
->        (g1,g2) = split g
->        (g3, eqs) = classBass 0.8 g2 $ map (eqClass satbOP opcEq) justChords
->        csChords = greedyLet (noCPL 7) nearFall consts eqs g3 
->        aChords' = zipWith (\(a,b,c) d -> (a,b,d)) aChords csChords
->    in  (g3, aChords')
 */
-    def classicalCS2(g: StdGen, aChords: Seq[TChord], consts: Constraints): (StdGen, Seq[TChord]) =
+    def classicalCS2(g: StdGen, aChords: List[TChord], consts: Constraints): (StdGen, Seq[TChord]) =
         val justChords = aChords.map(_._3)
         val (g1, g2) = g.split
         val (g3, eqs) = classBass(0.8, g2, justChords.map(eqClass(satbOP, opcEq)))
@@ -64,6 +73,15 @@ to deviate from this rule for the sake of producing a result.
 >     rootFilter :: Predicate AbsChord
 >     rootFilter x = or $ map (opcEq x) [[0,0,4,7], [0,0,3,7], [0,0,3,6]]
 */
-    def classBass(thresh: Double, g: StdGen, ess: Seq[EqClass[AbsChord]]): (StdGen, Seq[EqClass[AbsChord]]) =
-        ???
+    def classBass(thresh: Double, g: StdGen, ess: List[EqClass[AbsChord]]): (StdGen, List[EqClass[AbsChord]]) =
+        ess match
+        case Nil => (g, Nil)
+        case e :: es =>
+            def rootFilter(x: AbsChord): Boolean =
+                Seq(Seq(0,0,4,7), Seq(0,0,3,7), Seq(0,0,3,6)).exists(opcEq(x, _))
+            val (r, gp) = randomR((0.0, 1.0), g)
+            val ep = if r > thresh then e else e.filter(rootFilter)
+            val epp = if ep.isEmpty then e else ep
+            val (gpp, esp) = classBass(thresh, gp, es)
+            (gpp, epp :: esp)
 end ClassicalFG

@@ -122,9 +122,12 @@ class Rat(x: Int, y: Int) derives Eql
             denom == that.denom
         case _ => false
     override def toString() = s"$numer/$denom"
+end Rat
 object Rat
     def apply(x: Int, y: Int): Rat = new Rat(x, y)
     def apply(x: Int): Rat = Rat(x, 1)
+end Rat
+
 import scala.util.FromDigits
 given FromDigits[Rat]
     def fromDigits(digits: String): Rat = Rat(digits.toInt)
@@ -139,3 +142,11 @@ def mapAccumL[X, Y, ACC](s: ACC, lx: List[X])(f: (ACC, X) => (ACC, Y)): (ACC, Li
         val (sp, y) = f(s, x)
         val (spp, ys) = mapAccumL(sp, xs)(f)
         (spp, y :: ys)
+
+def subtract(a: Int, b: Int) = b - a
+
+def zip3[A,B,C](a: Seq[A], b: Seq[B], c: Seq[C]): Seq[(A,B,C)] =
+    if a.nonEmpty && b.nonEmpty && c.nonEmpty then
+        (a.head, b.head, c.head) +: zip3(a.tail, b.tail, c.tail)
+    else
+        Seq.empty 

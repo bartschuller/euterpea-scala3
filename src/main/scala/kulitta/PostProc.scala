@@ -9,6 +9,8 @@ Post processing module to turn Terms into music using Euterpea.
 import PTGG._
 import grammars.MusicGrammars._
 import chordspaces.OPTIC._
+import utils.{given, _}
+import euterpea.Music.{Mode => _, _}
 
 object PostProc
 /*
@@ -55,4 +57,28 @@ Conversion of a single chord to a mode rooted at zero:
         val i = ct.ordinal
         def fixDim(x: AbsChord): AbsChord = if optEq(x, Seq(0,3,6)) then t(x.head)(Seq(0,3,7)) else x
         fixDim(Seq(0,2,4).map(_+i)).map(s(_))
+/*
+============ SPLITTING VOICES APART ===========
+
+The code here places TChords into a form more suitable
+for additional musical processing. A Voice is a list of
+pitches with duration and key/mode context.
+*/
+    def toVoices(ts: Seq[TChord]): Seq[Voice] =
+        def checkMatrix(is: Seq[Seq[Int]]): Boolean =
+            if is.isEmpty then true else
+                val l = is.head.length
+                !is.exists(_.length != l)
+        val (ks, ds, ps) = ts.unzip3
+        if checkMatrix(ps) then
+            ps.transpose.map(v => zip3(ks, ds, v))
+        else sys.error("(toVoices) chords must all have the same number of voices!")
+    
+    def toNotes(v: Voice): Music[Pitch] =
+        def notep(d: Dur, p: AbsPitch): Music[Pitch] =
+            if p < 0 then rest(d) else note(d, pitch(p))
+        line(v.map((k,d,p) => notep(d, p)))
+    
+    def vsToMusicI(is: Seq[InstrumentName], vs: Seq[Voice]): Music[Pitch] =
+        chord(is.zipWith(vs.map(toNotes))((i,m) => instrument(i, m)))
 end PostProc

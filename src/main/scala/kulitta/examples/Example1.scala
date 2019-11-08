@@ -8,6 +8,9 @@ import foregrounds.ClassicalFG._
 import PostProc._
 import utils.{given, _}
 import StdGen.mkStdGen
+import euterpea.midi.MEvent._
+import euterpea.midi.ToSmidi._
+import smidi._
 
 object Example1
 /*
@@ -68,23 +71,46 @@ a 4-measure long I-chord (4 times a wholenote, wn) in C-major (written below
 as "Major" with root pitch class 0, or C).
 */
     val startSym = List(i(MP(wn*4, Major, 0, 0, wn*4)))
-    val g1 = mkStdGen(42)
+    val g1 = mkStdGen(4)
+
+    @main def doStuff =
+
 /*
 The "gen" function creates an infinite list of sequential generative
 iterations. We will call it on the start symbol with a random number seed
 and then take the 5th generative iteration. This step returns a new random
 generator, g2, in addition to the abstract structure of the music.
 */
-    val (g2, absStruct) = gen(rules, g1, startSym)(5)
+        val (g2, absStruct) = gen(rules, g1, startSym)(5)
+
+        println(absStruct)
+        println()
 /*
 Now we can map pitches to these chords with a classical chord space.
 We will impose no additional search constraints and just use Kulitta's
 defaults. This step also returns a new generator, g3, that we can use for
 the final step.
 */
-    val (g3, chords) = classicalCS2(g2, toAbsChords(absStruct), Nil) 
+        val (g3, chords) = classicalCS2(g2, toAbsChords(absStruct), Nil)
 
-    @main def doStuff =
-        println(absStruct)
         println(chords)
+        println()
+/*
+And finally, we put a simple foreground on top.
+*/
+        val (g4, (justChords, finalMusic)) = classicalFGp(g3, chords)
+
+        println(justChords)
+
+        val pf = perform(justChords)
+        val sequence = toMidi(pf)
+        MidiSystem.write(sequence, 1, "example1.mid")
+        val sequencer = MidiSystem.sequencer
+        sequencer.setSequence(sequence)
+        sequencer.open()
+        sequencer.start()
+        while (sequencer.isRunning)
+        Thread.sleep(1000L)
+        sequencer.stop()
+        sequencer.close()
 end Example1

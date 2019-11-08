@@ -33,5 +33,6 @@ x is in the quotient space, qs.
 >     in  maybe (error ("(eqClass) No class for "++show x)) (qs !!) ind 
 */
     def eqClass[A](qs: QSpace[A], r: EqRel[A])(x: A): EqClass[A] =
-        ???
+        val ind = qs.indexWhere(e => r(x, e.head))
+        if ind < 0 then sys.error(s"(eqClass) No class for $x") else qs(ind)
 end QuotientSpaces
