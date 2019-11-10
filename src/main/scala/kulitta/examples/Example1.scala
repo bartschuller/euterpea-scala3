@@ -8,6 +8,7 @@ import foregrounds.ClassicalFG._
 import PostProc._
 import utils.{given, _}
 import StdGen.mkStdGen
+import euterpea.Music.{line, rest}
 import euterpea.midi.MEvent._
 import euterpea.midi.ToSmidi._
 import smidi._
@@ -38,7 +39,7 @@ We'll also use the MP type ("music parameter") from MusicGrammars.lhs to store
 the duration for each symbol. We can now write these rules in Haskell as follows. 
 */
     val r1: Rule[CType,MP] = Rule(I, 0.3, p => List(v (p.h), i (p.h)))
-    val r2: Rule[CType,MP] = Rule(I, 0.6, p => List(i (p.h), i (p.h)))
+    val r2: Rule[CType,MP] = Rule(I, 0.3, p => List(i (p.h), i (p.h)))
     val r3: Rule[CType,MP] = Rule(I, 0.1, p => List(i (p)))
     val r4: Rule[CType,MP] = Rule(V, 0.5, p => List(iv (p.h), v (p.h)))
     val r5: Rule[CType,MP] = Rule(V, 0.4, p => List(v (p.h), v (p.h)))
@@ -63,7 +64,7 @@ This results in a more even distribution of durations, since they cannot become
 infinitely small as generation progresses. We can convert all the rules to
 this format as follows.
 */
-    val rules = Seq(r1, r2, r3, r4, r5, r6, r7, r8).map(toRelDur2(_ < qn))
+    val rules = Seq(r1, r2, r3, r4, r5, r6, r7, r8).map(toRelDur2(_ < en))
 /*
 Now we can generate some music with the grammar. First, we will create a
 start symbol and a random generator to work with. The start symbol will be
@@ -71,7 +72,7 @@ a 4-measure long I-chord (4 times a wholenote, wn) in C-major (written below
 as "Major" with root pitch class 0, or C).
 */
     val startSym = List(i(MP(wn*4, Major, 0, 0, wn*4)))
-    val g1 = mkStdGen(4)
+    val g1 = mkStdGen(42)
 
     @main def doStuff =
 
@@ -81,7 +82,7 @@ iterations. We will call it on the start symbol with a random number seed
 and then take the 5th generative iteration. This step returns a new random
 generator, g2, in addition to the abstract structure of the music.
 */
-        val (g2, absStruct) = gen(rules, g1, startSym)(5)
+        val (g2, absStruct) = gen(rules, g1, startSym)(7)
 
         println(absStruct)
         println()
@@ -100,9 +101,7 @@ And finally, we put a simple foreground on top.
 */
         val (g4, (justChords, finalMusic)) = classicalFGp(g3, chords)
 
-        println(justChords)
-
-        val pf = perform(justChords)
+        val pf = perform(line(Seq(justChords, rest(wn), finalMusic)))
         val sequence = toMidi(pf)
         MidiSystem.write(sequence, 1, "example1.mid")
         val sequencer = MidiSystem.sequencer

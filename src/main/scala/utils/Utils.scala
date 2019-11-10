@@ -145,8 +145,8 @@ def mapAccumL[X, Y, ACC](s: ACC, lx: List[X])(f: (ACC, X) => (ACC, Y)): (ACC, Li
 
 def subtract(a: Int, b: Int) = b - a
 
-def zip3[A,B,C](a: Seq[A], b: Seq[B], c: Seq[C]): Seq[(A,B,C)] =
+def zip3[A,B,C](a: Seq[A], b: Seq[B], c: Seq[C]): List[(A,B,C)] =
     if a.nonEmpty && b.nonEmpty && c.nonEmpty then
-        (a.head, b.head, c.head) +: zip3(a.tail, b.tail, c.tail)
+        (a.head, b.head, c.head) :: zip3(a.tail, b.tail, c.tail)
     else
-        Seq.empty 
+        Nil

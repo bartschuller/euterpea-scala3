@@ -21,7 +21,14 @@ Intermediate types:
     type RChord = (Key, Dur, CType)
     type TChord = (Key, Dur, AbsChord)
     type TNote = (Key, Dur, AbsPitch)
-    type Voice = Seq[TNote]
+    type Voice = List[TNote]
+/*
+Accessing the members of a TNote:
+*/
+    def (kdp: TNote) tnK: Key = kdp._1
+    def (kdp: TNote) tnD: Dur = kdp._2
+    def (kdp: TNote) tnP: AbsPitch = kdp._3
+    def newP(kdp: TNote, pp: AbsPitch): TNote = kdp.copy(_3 = pp)
 /*
 The goal using these intermediate types is the following:
 
@@ -64,7 +71,7 @@ The code here places TChords into a form more suitable
 for additional musical processing. A Voice is a list of
 pitches with duration and key/mode context.
 */
-    def toVoices(ts: Seq[TChord]): Seq[Voice] =
+    def toVoices(ts: List[TChord]): List[Voice] =
         def checkMatrix(is: Seq[Seq[Int]]): Boolean =
             if is.isEmpty then true else
                 val l = is.head.length
@@ -79,6 +86,6 @@ pitches with duration and key/mode context.
             if p < 0 then rest(d) else note(d, pitch(p))
         line(v.map((k,d,p) => notep(d, p)))
     
-    def vsToMusicI(is: Seq[InstrumentName], vs: Seq[Voice]): Music[Pitch] =
+    def vsToMusicI(is: List[InstrumentName], vs: List[Voice]): Music[Pitch] =
         chord(is.zipWith(vs.map(toNotes))((i,m) => instrument(i, m)))
 end PostProc

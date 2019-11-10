@@ -13,7 +13,7 @@ import chordspaces.OPTIC._
 import Constraints._
 
 object Search
-    type Constraints = Seq[Seq[(Int, Int)]]
+    type Constraints = List[List[(Int, Int)]]
     type Index = Int
     type Bound = Int
 /*
@@ -57,7 +57,7 @@ should always be the case).
 /*
 This version of greedyProg operates over a list of equivalence classes.
 */
-    def greedyProgp[A](c: Predicate[(A,A)], f: Fallback[A], g: StdGen, ess: List[EqClass[A]]): Seq[A] =
+    def greedyProgp[A](c: Predicate[(A,A)], f: Fallback[A], g: StdGen, ess: List[EqClass[A]]): List[A] =
         ess match
         case Nil => Nil
         case e :: es =>
@@ -72,7 +72,7 @@ This version of greedyProg operates over a list of equivalence classes.
 The applyCons function applys let-in constraints to an index list. Indices
 on the left are given preference when satisfying constraints.
 */
-    def applyCons(inds: Seq[Int], ijss: Seq[(Int,Int)]): Seq[Int] =
+    def applyCons(inds: Seq[Int], ijss: Seq[(Int,Int)]): List[Int] =
         ???
 /*
 ==================================
@@ -91,10 +91,10 @@ currently no way around this using the greedy approach. The more exact searches
 further up in this file are alternatives in such cases.
 */
     def greedyLet[A](p: Predicate[(A,A)], f: Fallback[A], k: Constraints,
-                    es: List[EqClass[A]], g: StdGen): Seq[A] =
+                    es: List[EqClass[A]], g: StdGen): List[A] =
         import math.Ordering.Implicits._
         val n = es.length
         val cs = greedyProgp(p, f, g, es)
-        val consPat = k.sorted.foldLeft(0 until n)(applyCons)
+        val consPat = k.sorted.foldLeft((0 until n).toList)(applyCons)
         consPat.map(cs(_))
 end Search
