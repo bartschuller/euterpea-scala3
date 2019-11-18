@@ -21,10 +21,24 @@ The makeRange function will generate Z^n for user-specified ranges.
 > makeRange = foldr (\(l,u) xs -> [(a:b) | a<-[l..u], b<-xs]) [[]]
 */
     def makeRange(pairs: Seq[(PitchNum,PitchNum)]): Seq[AbsChord] =
-        pairs.foldRight(Seq(Seq.empty[Int])) {case ((l, u), xs) => for {
-            a <- l to u
-            b <- xs
-            } yield (a +: b)}
+        pairs.foldRight(Seq(Seq.empty[Int])) {case ((l, u), xs) =>
+            for
+                a <- l to u
+                b <- xs
+            yield (a +: b) }
+/*
+A version of makeRange for use with sorted spaces:
+*/
+    def makeRangep(pairs: Seq[(PitchNum,PitchNum)]): Seq[AbsChord] =
+        def pSort(xs: Seq[Int]): Boolean =
+            xs match
+            case a +: b +: t => a < b
+            case _ => true
+        pairs.foldRight(Seq(Seq.empty[Int])) {case ((l, u), xs) =>
+            for
+                a <- l to u
+                b <- xs if pSort(a +: b)
+            yield (a +: b) }
 /*
 ========= O, P, & T IMPLEMENTATION =========
 

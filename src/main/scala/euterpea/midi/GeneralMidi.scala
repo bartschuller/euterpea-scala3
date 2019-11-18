@@ -283,4 +283,7 @@ object GeneralMidi
         case Gunshot => 127
         case i => sys.error(s"fromEnum($i) is not implemented")
     end fromEnum
+
+    def enumFrom(i: InstrumentName): Seq[InstrumentName] =
+      ???
 end GeneralMidi

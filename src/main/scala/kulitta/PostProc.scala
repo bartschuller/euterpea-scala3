@@ -28,7 +28,7 @@ Accessing the members of a TNote:
     def (kdp: TNote) tnK: Key = kdp._1
     def (kdp: TNote) tnD: Dur = kdp._2
     def (kdp: TNote) tnP: AbsPitch = kdp._3
-    def newP(kdp: TNote, pp: AbsPitch): TNote = kdp.copy(_3 = pp)
+    def newP[A,B,C](kdp: (A,B,C), pp: C): (A,B,C) = kdp.copy(_3 = pp)
 /*
 The goal using these intermediate types is the following:
 
@@ -65,13 +65,24 @@ Conversion of a single chord to a mode rooted at zero:
         def fixDim(x: AbsChord): AbsChord = if optEq(x, Seq(0,3,6)) then t(x.head)(Seq(0,3,7)) else x
         fixDim(Seq(0,2,4).map(_+i)).map(s(_))
 /*
+Transposition using a key (to avoid C-major assignment only):
+*/
+    def atTrans(a: AbsPitch)(ts: Seq[TChord]): Seq[TChord] =
+        ts.map{ case ((k,m),d,c) => (((k+a) mod 12, m), d, t(a)(c)) }
+/*
+The toCords functon does a similar thing, but returns a CType and 
+its key/mode context without performing the conversion to AbsChord.
+*/
+    def ctTrans(a: AbsPitch)(ts: List[(Key, Dur, CType)]): List[(Key, Dur, CType)] =
+        ts.map { case ((k, m), d, c) => (((k+a) mod 12, m), d, c) }
+/*
 ============ SPLITTING VOICES APART ===========
 
 The code here places TChords into a form more suitable
 for additional musical processing. A Voice is a list of
 pitches with duration and key/mode context.
 */
-    def toVoices(ts: List[TChord]): List[Voice] =
+    def toVoices(ts: Seq[TChord]): Seq[Voice] =
         def checkMatrix(is: Seq[Seq[Int]]): Boolean =
             if is.isEmpty then true else
                 val l = is.head.length
@@ -86,6 +97,6 @@ pitches with duration and key/mode context.
             if p < 0 then rest(d) else note(d, pitch(p))
         line(v.map((k,d,p) => notep(d, p)))
     
-    def vsToMusicI(is: List[InstrumentName], vs: List[Voice]): Music[Pitch] =
+    def vsToMusicI(is: List[InstrumentName], vs: Seq[Voice]): Music[Pitch] =
         chord(is.zipWith(vs.map(toNotes))((i,m) => instrument(i, m)))
 end PostProc

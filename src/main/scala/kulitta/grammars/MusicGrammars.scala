@@ -112,6 +112,13 @@ instead.
             val xs = toPairs(expand(Nil, r.rfun(p))).map(_._2.dur)
             if xs.map(f).exists(_ == true) then List(NT(r.lhs, p)) else r.rfun(p)
         })
+/*
+For mode/key changes:
+
+                       C      D      E      F      G      A      B
+*/
+    val majModes = Seq(Major, Minor, Minor, Major, Major, Minor, Minor)
+    val minModes = Seq(Minor, Minor, Major, Minor, Minor, Major, Major)
 
     val majScale = Seq(0,2,4,5,7,9,11)
     val minScale = Seq(0,2,3,5,7,8,10)
@@ -131,6 +138,15 @@ instead.
         case Mixolydian => mixScale
         case Locrian => locScale
         case m => sys.error(s"(getScale) Scale not defined for mode $m")
+    
+    def modMajMin(i: Int)(p: MP): MP =
+        val k0 = p.key
+        if p.mode == Major then p.copy(mode = majModes(i), key = (k0 + majScale(i)) mod 12)
+        else p.copy(mode = minModes(i), key = (k0 + minScale(i)) mod 12)
+/*
+Basic modulations on scale degrees for Major and Minor systems
+*/
+    val Seq(m2, m3, m4, m5, m6, m7) = (1 to 6).map(modMajMin)
 /*
 Modes include the seven usual derivatives of the C-major scale along with
 chromatic and custom options. Note that Major=Ionian and Minor=Aeoloean.
@@ -162,12 +178,51 @@ A default MP value is one measure long (in 4/4) in the key of C-major.
 */
     val defMP = MP(1, Major, 0, 0, 1)
 /*
-==================================
-
-Roman Numeral Grammar Base
-
-> [i, ii, iii, iv, v, vi, vii] = map fc $ enumFrom I where
->      fc ct p = NT (ct,p)
+Grammar from dissertation chapter 4, table 4.2 with optional let 
+statements added.
 */
-
+    import CType._
+    def rRules1(minDur: Dur, useLets: Boolean): Seq[Rule[CType, MP]] =
+        def letRules = Enum[CType].enumFrom(I).flatMap(ct => Seq(letRule1(ct), letRule2(ct)))
+        def letRule1(ct: CType) = Rule[CType,MP](ct, 0.1, p =>
+            List(Let("x", List(NT(ct, p.h)), List(Var("x"), Var("x")))))
+        def letRule2(ct: CType) = Rule[CType,MP](ct, 0.1, p =>
+            List(Let("x", List(NT(ct, p.q)), List(Var("x"), v(p.h), Var("x")))))
+        def rawRules = List[Rule[CType,MP]](
+            // -- Rules for I --
+            Rule(I, 0.187, p => List(if p.isMaj then ii(p.q) else iv(p.q), v(p.q), i(p.h))),
+            Rule(I, 0.187, p => List(i(p.q), iv(p.q), v(p.q), i(p.q))),
+            Rule(I, 0.187, p => List(v(p.h), i(p.h))),
+            Rule(I, 0.187, p => List(i(p.q), if p.isMaj then ii(p.q) else iv(p.q), v(p.q), i(p.q))),
+            Rule(I, 0.252, p => List(i(p))),
+            // -- Rules for II --
+            Rule(II, 0.40, p => List(if p.isMaj then ii(p) else iv(p))),
+            Rule(II, 0.40, p => List(if p.isMaj then (if p.dur > qn then ii(p) else i(m2(p))) else ii(p))),
+            Rule(II, 0.20, p => if p.isMaj then List(vi(p.h), ii(p.h)) else List(vi(p.h), iv(p.h))),
+            // -- Rules for III --
+            Rule(III, 0.90, p => List(iii(p))),
+            Rule(III, 0.10, p => List(i(m3(p)))),
+            // -- Rules for IV --
+            Rule(IV, 0.90, p => List(iv(p))),
+            Rule(IV, 0.10, p => List(i(m4(p)))),
+            // -- Rules for V --
+            Rule(V, 0.10, p => List(v(p))),
+            Rule(V, 0.15, p => List(iv(p.h), v(p.h))),
+            Rule(V, 0.10, p => List(iii(p.h), vi(p.h))),
+            Rule(V, 0.10, p => List(i(p.q), iii(p.q), vi(p.q), v(p.q))),
+            Rule(V, 0.10, p => List(v(p.q), vi(p.q), vii(p.q), v(p.q))),
+            Rule(V, 0.10, p => List(v(p.h), vi(p.h))),
+            Rule(V, 0.10, p => List(iii(p))),
+            Rule(V, 0.05, p => List(v(p.h), v(p.h))),
+            Rule(V, 0.10, p => List(vii(p.h), v(p.h))),
+            Rule(V, 0.10, p => List(i(m5(p)))),
+            // -- Rules for VI --
+            Rule(VI, 0.70, p => List(vi(p))),
+            Rule(VI, 0.30, p => List(i(m6(p)))),
+            // -- Rules for VII --
+            Rule(VII, 0.50, p => List(if p.dur > qn then vii(p) else i(m7(p)))),
+            Rule(VII, 0.50, p => List(i(p.h), iii(p.h)))
+        ) ++ (if useLets then letRules else Nil)
+        normalize(rawRules.map(toRelDur2(_ < minDur)))
+        
 end MusicGrammars

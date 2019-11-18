@@ -71,7 +71,11 @@ object Random
     def randoms[G <: RandomGen[_], A: Random : Bounded](g: RandomGen[G]): LazyList[A] =
         val (a, gp) = random(g)
         a #:: randoms(gp)
-
+    
+    def splitN(g: StdGen): LazyList[StdGen] =
+        val (g1, g2) = g.split
+        g1 #:: splitN(g2)
+    
     given Random[Int]
         def randomR[G <: RandomGen[_]](range: (Int, Int), g: RandomGen[G]): (Int, G) =
             g.nextBetween(range._1, range._2)
@@ -85,7 +89,7 @@ object Random
 trait Enum[A]
     def toEnum(i: Int): A
     def fromEnum(a: A): Int
-    //def enumFrom(a: A): Seq[A]
+    def enumFrom(a: A): Seq[A]
 object Enum
     def apply[A](given Enum[A]) = summon[Enum[A]]
 
@@ -150,3 +154,5 @@ def zip3[A,B,C](a: Seq[A], b: Seq[B], c: Seq[C]): List[(A,B,C)] =
         (a.head, b.head, c.head) :: zip3(a.tail, b.tail, c.tail)
     else
         Nil
+
+def const[A,B](a: A)(b: B): A = a

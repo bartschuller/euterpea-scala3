@@ -56,7 +56,6 @@ chosen by pickPT below may end up being other categories of non-chordal
 tones in music theory.
 */
     def pickPT(lim: AbsPitch)(g: StdGen, t1: TNote, t2: TNote): (StdGen, Option[AbsPitch]) =
-        println(s"pickPT(lim=$lim, $t1, $t2)")
         val Seq(pMin, pMax) = Seq(tnP(t1), tnP(t2)).sorted
         def f(x: AbsPitch) = x > pMin && x < pMax && (x - pMin <= lim || pMax -x <= lim)
         val psp = allPs(t1, t2).filter(f)
@@ -69,7 +68,6 @@ definition here is fairly broad and may produce other categorie of non-
 chordal tones as a result.
 */
     def pickNT(lim: AbsPitch)(g: StdGen, t1: TNote, t2: TNote): (StdGen, Option[AbsPitch]) =
-        println(s"pickNT(lim=$lim, $t1, $t2)")
         val Seq(pMin, pMax) = Seq(tnP(t1), tnP(t2)).sorted
         def f(x: AbsPitch) = (x < pMin && pMin - x <= lim) || (x > pMax && x - pMax <= lim)
         val psp = allPs(t1, t2).filter(f)
@@ -149,22 +147,26 @@ function stochastically ties notes in a voice.
 /*
 Finally, the |addFG| function puts all of these elements together.
 */
-    def addFG(c: CConstants, g: StdGen, vs: List[List[TNote]]): (StdGen, List[List[TNote]]) =
-        def fgRec(c: CConstants, g: StdGen, i: Int, vs: List[List[TNote]]):
-                    (StdGen, List[List[TNote]]) =
+    def addFG(c: CConstants, g: StdGen, vs: Seq[List[TNote]]): (StdGen, List[List[TNote]]) =
+        def fgRec(c: CConstants, g: StdGen, i: Int, vs: Seq[List[TNote]]):
+                    (StdGen, Seq[List[TNote]]) =
             if i >= vs.length || i < 0 then (g, vs) else
                 val (gp, vp) = addFgToVoice(c, allFFs(c)(i), g, vs(i))
                 val vsp = vs.take(i) ++ List(vp) ++ vs.drop(i+1)
                 fgRec(c, gp, i+1, vsp)
-        def tieRec(c: CConstants, g: StdGen, vss: List[List[TNote]]): (StdGen, List[List[TNote]]) =
+        def tieRec(c: CConstants, g: StdGen, vss: Seq[List[TNote]]): (StdGen, List[List[TNote]]) =
             vss match
             case Nil => (g, Nil)
-            case v :: vs =>
+            case v +: vs =>
                 val (g1, vp) = stochTie(c, g, v)
                 val (g2, vsp) = tieRec(c, g1, vs)
                 (g2, vp :: vsp)
         val (gp, vsp) = fgRec(c, g, 0, vs)
         tieRec(c, gp, vsp)
+
+    def classicalFRG(g: StdGen, rcs: List[RChord], consts: Constraints): (StdGen, (Music[Pitch], Music[Pitch])) =
+        val (g1, csChords) = classicalCS(g, rcs, consts)
+        classicalFGp(g1, csChords)
 
     def classicalFGp(g: StdGen, aChordsp: List[TChord]): (StdGen, (Music[Pitch], Music[Pitch])) =
         val (g4, csFG) = addFG(defConsts, g, toVoices(aChordsp).reverse)
@@ -176,11 +178,10 @@ Finally, the |addFG| function puts all of these elements together.
 /*
 Similarly, there are instances when we may want to use a classical chord space, but
 not add a classical foreground. This can be useful for mixing styles.
-
-> classicalCS :: StdGen -> [RChord] -> Constraints -> (StdGen, [TChord])
-> classicalCS g rcs consts = 
->     classicalCS2 g (map toAbsChord rcs) consts 
 */
+    def classicalCS(g: StdGen, rcs: List[RChord], consts: Constraints): (StdGen, List[TChord]) =
+        classicalCS2(g, rcs.map(toAbsChord), consts)
+
     def classicalCS2(g: StdGen, aChords: List[TChord], consts: Constraints): (StdGen, List[TChord]) =
         val justChords = aChords.map(_._3)
         val (g1, g2) = g.split
@@ -193,17 +194,6 @@ The classicalCS2 function uses a stochastic filter over equivalence classes.
 This filter enforces that the bass holds the root with a certain probability 
 (the "thresh" value). If the constraints can't be met, the bass is allowed 
 to deviate from this rule for the sake of producing a result.
-
-> classBass :: Double -> StdGen -> [EqClass AbsChord] -> (StdGen, [EqClass AbsChord])
-> classBass thresh g [] = (g, [])
-> classBass thresh g (e:es) = 
->     let (r,g') = randomR (0,1.0::Double) g
->         e' = if r > thresh then e else filter rootFilter e
->         e'' = if null e' then e else e'
->         (g'', es') = classBass thresh g es
->     in  (g'', e'':es') where
->     rootFilter :: Predicate AbsChord
->     rootFilter x = or $ map (opcEq x) [[0,0,4,7], [0,0,3,7], [0,0,3,6]]
 */
     def classBass(thresh: Double, g: StdGen, ess: List[EqClass[AbsChord]]): (StdGen, List[EqClass[AbsChord]]) =
         ess match

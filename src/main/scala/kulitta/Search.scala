@@ -11,6 +11,8 @@ import utils.{given, _}
 import QuotientSpaces._
 import chordspaces.OPTIC._
 import Constraints._
+import PTGG._
+import Term._
 
 object Search
     type Constraints = List[List[(Int, Int)]]
@@ -68,6 +70,50 @@ This version of greedyProg operates over a list of equivalence classes.
                     val (gp, yi) = greedyChord(pts.head, y, c, f, g)
                     y :: greedyRecp(c, f, gp, yi, pts.tail)
             greedyRecp(c, f, g, y0, es)
+/*
+The findInds function looks through a Term for let-in expressions.
+When it finds Let x a exp, it calls findIndsSub on x and exp to 
+determine which indices in the sequence are occupied by instances
+of x. 
+*/
+    def findInds[A,B](e: List[(String, List[Term[A,B]])], tss: Seq[Term[A,B]]): List[List[(Int,Int)]] =
+        tss match
+        case Nil => Nil
+        case t +: ts =>
+            val rest = findInds(e, ts)
+            t match
+            case Var(_) => sys.error("undefined")
+            case NT(_, _) => findInds(e, ts).map(_.map(pAdd(1)))
+            case Let(x, a, exp) =>
+                val ap = expand(e, a)
+                val expp = expand((x,ap)::e, exp)
+                findInds(e, a) ++ (findIndsSub(x, ap.length, expandp(e, exp)) ::
+                    rest.map(_.map(pAdd(expp.length))))
+
+    def expandp[A,B](e: List[(String, List[Term[A,B]])], tss: Sentence[A,B]): Sentence[A,B] =
+        tss match
+        case Nil => Nil
+        case t :: ts =>
+            t match
+            case Let(x, a, exp) => expandp((x, expandp(e, a)) :: e, exp ++ expandp(e, ts))
+            case Var(x) => e.find(_._1 == x).fold(Var(x) :: expandp(e, ts))(_._2 ++ expandp(e, ts))
+            case x => x :: expandp(e, ts)
+/*
+The findIndsSub function looks for instances of a variable and
+determines what indices they occupy.
+*/
+    def findIndsSub[A,B](x: String, xLen: Int, tss: List[Term[A,B]]): List[(Int,Int)] =
+        tss match
+        case Nil => Nil
+        case t :: ts =>
+            val rest = findIndsSub(x, xLen, ts)
+            t match
+            case Var(y) => if x==y then (0, xLen-1) :: rest.map(pAdd(xLen)) else rest
+            case NT(_, _) => findIndsSub(x, xLen, ts).map(pAdd(1))
+            case Let(_, _, _) => sys.error("(find Instances) This point should be unreachable.")
+
+    def pAdd(amt: Int)(a: Int, b: Int) = (a+amt, b+amt)
+
 /*
 The applyCons function applys let-in constraints to an index list. Indices
 on the left are given preference when satisfying constraints.

@@ -82,13 +82,6 @@ It allows for nested Let expressions for variables with the same name
 with lexical scoping. For example:
 
 expand [] [Let "x" t1 [Let "x" t2 (Var "x")]] ==> t2
-
-> expand :: [(String, Sentence a b)] -> Sentence a b -> Sentence a b
-> expand e [] = []
-> expand e (t:ts) = case t of 
->     Let x a exp -> expand ((x, expand e a) : e) exp ++ expand e ts
->     Var x       -> (maybe (error (x ++ " is undefined")) id $ lookup x e) ++ expand e ts
->     x           -> x : expand e ts
 */
     def expand[A,B](e: List[(String, Sentence[A,B])], sentence: Sentence[A,B]): Sentence[A,B] =
         sentence match
@@ -121,5 +114,15 @@ Flattening completely to a list
             case NT(ct, d) => (ct, d)
             case _ => sys.error("(toPairs) Variable or Let expression encountered")
         expand(Nil, sentence).map(f)
-
+/*
+Normalize the probabilities for a rule set
+*/
+    def normalize[A,B](rules: List[Rule[A,B]]): List[Rule[A,B]] =
+        rules match
+        case Nil => Nil
+        case (r@Rule(l, p, rf)) :: rs =>
+            val rset = r :: rs.filter(_.lhs == l)
+            val rsetp = rs.filterNot(_.lhs == l)
+            val psum = rset.map(_.prob).sum
+            rset.map(r => r.copy(prob = r.prob/psum)) ++ normalize(rsetp)
 end PTGG
