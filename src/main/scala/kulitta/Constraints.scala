@@ -128,4 +128,7 @@ ADDITIONAL THESIS PREDICATES
 
     val satbOP: QSpace[AbsChord] = satbChords \ opEq
 
+    def pianoChord(x: AbsChord): Boolean =
+        x.length <= 5 && x.max - x.min <= 12
+
 end Constraints

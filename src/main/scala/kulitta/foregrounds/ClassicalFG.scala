@@ -171,7 +171,7 @@ Finally, the |addFG| function puts all of these elements together.
     def classicalFGp(g: StdGen, aChordsp: List[TChord]): (StdGen, (Music[Pitch], Music[Pitch])) =
         val (g4, csFG) = addFG(defConsts, g, toVoices(aChordsp).reverse)
         import InstrumentName._
-        val is = List(Bassoon, EnglishHorn, Clarinet, Oboe, SopranoSax)
+        val is = LazyList(Bassoon, EnglishHorn, Clarinet, Oboe, SopranoSax)
         val fgM = vsToMusicI(is, csFG.reverse)
         val csM = vsToMusicI(is, toVoices(aChordsp))
         (g4, (csM, fgM))

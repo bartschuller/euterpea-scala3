@@ -11,8 +11,10 @@ import Constraints._
 import Search._
 import utils.{given, _}
 import Random._
-import euterpea.Music.{Music,Pitch, rest, note, pitch}
+import euterpea.Music.{Music,Pitch, rest, note, chord, pitch, instrument, InstrumentName, addVolume, Volume}
 import Music.:+:
+import InstrumentName._
+import ClassicalFG._
 
 /*
 Simple Jazz Foreground Algorithms
@@ -58,7 +60,7 @@ information represents a mode rather than a chord.
     def classicalCS2(g: StdGen, aChords: List[TChord], consts: Constraints): (StdGen, List[TChord]) = ???
 
     def jazzChords(g: StdGen, chords: List[(Key, Dur, CType)], consts: Constraints):
-        (StdGen, Seq[(Key, Dur, AbsChord)]) =
+        (StdGen, List[(Key, Dur, AbsChord)]) =
         val LazyList(gJ, gOPC, gp) = splitN(g).take(3)
         val jts = chords.map(toJTriple)
         val ms = jts.map((a,b,c) => (Nil,c))
@@ -68,7 +70,7 @@ information represents a mode rather than a chord.
         val es = chordsJ.map(convOPC(qOPC, bassRoot))
         val chordsOPC = greedyProgp[AbsChord](const(true), nearFall, gOPC, es)
         val chordsOPCp = jts.zipWith(chordsOPC)(newP)
-        (gp, chordsOPCp)
+        (gp, chordsOPCp.toList)
 /*
 ============================
 
@@ -77,7 +79,7 @@ place at the level of Roman numerals.
 */
     val alg1Temps = Seq(Seq(0,2,4,6), Seq(0,1,2,4,6))
 
-    val alg1Rans = (34,45) :: List.fill(7)((50,64))
+    val alg1Rans = (34,45) :: List.fill(4)((50,64))
 
     def bassRoot(chrd: Seq[Int], m: AbsChord): Boolean = (chrd.min mod 12) == normO(m).head
 
@@ -93,7 +95,8 @@ place at the level of Roman numerals.
         val chordsOPCp = jts.zipWith(chordsOPC)(newP)
         val voices = toVoices(chordsOPCp)
         val (gRet, bassLine) = stochBass(gB, voices.head)
-        ???
+        (gRet, instrument(AcousticBass, bassLine) :=:
+            vsToMusicI(LazyList.continually(AcousticGrandPiano), voices.tail))
 
     def convOPC(q: QSpace[AbsChord], pj: Predicate[JChord])(cm: JChord): EqClass[AbsChord] =
         val (c, m) = cm
@@ -116,6 +119,81 @@ place at the level of Roman numerals.
         )
         val (r, gp) = randomR((0, pats.length - 1), g)
         (gp, pats(r))
+/*
+=============================
+
+Algorithm 2: simple bossa nova
+
+This approach interprets Roman numerals through three separate
+chord spaces in order to cut down the task's combinatorics. 
+*/
+    val alg2TempsC = List(List(0,2,4,6), List(1,2,4,6)) // for chords
+    val alg2TempsB = List(List(0,4)) // for bass
+    val alg2TempsL = List(List(0), List(2), List(4)) // for lead
+
+    val alg2RansB = List((34,49), (34,49))
+    val alg2RansC = List.fill(4)((50,64))
+    val alg2RansL = List((65,80))
+
+    def bassRoot2(jc: JChord) = normO(jc._1) == normO(List(jc._2(0), jc._2(4)))
+
+    def alg2FilterC(x: AbsChord) = sorted(x) && pianoChord(x)
+
+    def jazzFG2(g: StdGen, chords: List[(Key, Dur, CType)], consts: Constraints): (StdGen, Music[(Pitch, Volume)]) =
+        val gs = splitN(g).take(10)
+        val LazyList(gJC, gJB, gJL, gRC, gRB, gRL, gOPC_C, gOPC_B, gOPC_L, gL) = gs
+        val jts = chords.map(toJTriple)
+        val ms = jts.map((_,_,c) => (Nil, c))
+        val qs@Seq(qJC, qJB, qJL) = Seq(alg2TempsC, alg2TempsB, alg2TempsL).map(modeSpacep) // jazz spaces
+        val Seq(chordsJ, bassJ, leadJ) = qs.zipWith(gs.take(3))((q, gx) => // random walk for chords
+            greedyProg(q, modeEq, const(true), nearFallJ, gx, ms))
+        val qOPC_C = makeRangep(alg2RansC).filter(alg2FilterC) \ opcEq
+        val qOPC_B = makeRange(alg2RansB) \ opcEq
+        val qOPC_L = makeRangep(alg2RansL) \ opcEq
+        val esC = chordsJ.map(convOPC(qOPC_C, const(true))) // OPC equivalence classes for chords
+        val esB = bassJ.map(convOPC(qOPC_B, bassRoot2))
+        val esL = leadJ.map(convOPC(qOPC_L, const(true)))
+        val chordsOPC = greedyLet[AbsChord](const(true), nearFall, consts, esC, gOPC_C)
+        val bassOPC = greedyLet[AbsChord](noCPL(7), nearFall, consts, esB, gOPC_B)
+        val leadOPC = greedyLet[AbsChord](noCPL(7), nearFall, consts, esL, gOPC_L)
+        val Seq(cc, bc, lc) = Seq(chordsOPC, bassOPC, leadOPC).map(opc => jts.zipWith(opc)(newP))
+        val cm = bossaChords(cc)
+        val bm = bossaBass(bc)
+        val (gRet, lm) = bossaLead(gL, lc)
+        (gRet, chord(Seq(addVolume(127, instrument(AcousticBass, bm)),
+                        addVolume(75, instrument(AcousticGrandPiano, cm)),
+                        addVolume(127, instrument(Flute, lm)))))
+
+    def bossaBass(ts: Seq[TChord]): Music[Pitch] =
+        ts match
+        case Seq() => rest(0)
+        case (km, d, c@Seq(p1,p2)) +: t =>
+            def f1(b1: Int, b2: Int) = f2(b1,b2) :+: f2(b1,b2)
+            def f2(b1: Int, b2: Int) = f3(b1, qn+en) :+: f3(b2, en)
+            def f3(b1: Int, d: Dur) = note(d, pitch(b1))
+            if d > wn then bossaBass((km,wn,c) +: (km,d-wn,c) +: t) else
+            if d == wn then f1(p1, p2) :+: bossaBass(t) else
+            if d == hn then f2(p1, p2) :+: bossaBass(t) else f3(p1, d) :+: bossaBass(t)
+        case _ => sys.error("(bossaBass) Bad input")
+
+    def bossaChords(ts: Seq[TChord]): Music[Pitch] =
+        ts match
+        case Seq() => rest(0)
+        case (km, d, c) +: t =>
+            def f1(c: AbsChord) =
+                val cp = f2(en, c)
+                rest(qn) :+: cp :+: rest(qn) :+: cp :+: rest(qn)
+            def f2(d: Dur, c: AbsChord) =
+                chord(c.map(p => note(d, pitch(p))))
+            if d > wn then bossaChords((km,wn,c) +: (km,d-wn,c) +: t) else
+            if d == wn then f1(c) :+: bossaChords(t) else f2(d, c) :+: bossaChords(t)
+
+    def bossaLead(g: StdGen, ts: Seq[TChord]): (StdGen, Music[Pitch]) =
+        val jConsts = CConstants(2, 3, 0.3, 0.5, 0.8, 7)
+        def foreFunsJ(c: CConstants) = List((0.5, f1(c)), (0.5, f2(c)))
+        val v = toVoices(ts).head
+        val (gp, vp) = addFgToVoice(jConsts, foreFunsJ(defConsts), g, v)
+        (gp, vsToMusic(Seq(vp)))
 /*
 ======================
 

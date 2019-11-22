@@ -33,13 +33,27 @@ And finally the recursive, greedy function, greedyProg, and its
 */
     type Fallback[A] = (EqClass[A], StdGen, A) => (StdGen, A)
 
+    def greedyProg[A](  qs: QSpace[A], r: EqRel[A], c: Predicate[(A,A)],
+                        f: Fallback[A], g: StdGen, xss: List[A]): List[A] =
+        xss match
+        case Nil => Nil
+        case x :: xs =>
+            val e = eqClass(qs, r)(x)
+            val (gp, y0) = choose(g, e) // randomly choose the first AbsChord
+            def greedyRec(  qs: QSpace[A], r: EqRel[A], c: Predicate[(A,A)],
+                            f: Fallback[A], g: StdGen, y: A, pts: List[A]): List[A] =
+                if pts.isEmpty then List(y) else
+                    val (gp, yi) = greedyChord(eqClass(qs, r)(pts.head), y, c, f, g)
+                    y :: greedyRec(qs, r, c, f, gp, yi, pts.tail)
+            greedyRec(qs, r, c, f, gp, y0, xs)
+
     def greedyChord[A]( e: EqClass[A], yprev: A, hpair: Predicate[(A,A)],
                         f: Fallback[A], g: StdGen): (StdGen, A) =
         val (rand, gp) = g.next
         val yxs = LazyList.continually(yprev).zip(e)
         val ys = yxs.filter(hpair).map(_._2)
         if ys.isEmpty then f(e, gp, yprev)
-        else (gp, ys(rand % ys.length))
+        else (gp, ys(rand mod ys.length))
 /*
 And also a nearest neighbor fallback function that would always 
 succeed if the equivalence class has at least one element (which 

@@ -67,7 +67,7 @@ Conversion of a single chord to a mode rooted at zero:
 /*
 Transposition using a key (to avoid C-major assignment only):
 */
-    def atTrans(a: AbsPitch)(ts: Seq[TChord]): Seq[TChord] =
+    def atTrans(a: AbsPitch)(ts: List[TChord]): List[TChord] =
         ts.map{ case ((k,m),d,c) => (((k+a) mod 12, m), d, t(a)(c)) }
 /*
 The toCords functon does a similar thing, but returns a CType and 
@@ -97,6 +97,9 @@ pitches with duration and key/mode context.
             if p < 0 then rest(d) else note(d, pitch(p))
         line(v.map((k,d,p) => notep(d, p)))
     
-    def vsToMusicI(is: List[InstrumentName], vs: Seq[Voice]): Music[Pitch] =
+    def vsToMusic(vs: Seq[Voice]): Music[Pitch] =
+        chord(vs.map(toNotes))
+
+    def vsToMusicI(is: LazyList[InstrumentName], vs: Seq[Voice]): Music[Pitch] =
         chord(is.zipWith(vs.map(toNotes))((i,m) => instrument(i, m)))
 end PostProc
