@@ -55,6 +55,19 @@ And finally the recursive, greedy function, greedyProg, and its
         if ys.isEmpty then f(e, gp, yprev)
         else (gp, ys(rand mod ys.length))
 /*
+Now we need some fall-back functions. We can construct them from
+predicates.
+*/
+    def fallFun[A](c: Predicate[(A,A)])(e: EqClass[A], g: StdGen, x: A): (StdGen, A) =
+        val ys = LazyList.continually(x).zip(e).filter(c).map(_._2)
+        val (i, gp) = g.next
+        if ys.isEmpty then sys.error(s"Stuck at symbol $x. No viable options left!")
+        else (gp, ys(i mod ys.length))
+/*
+This is the default fallback function we used in our experiments:
+*/
+    val defFall = fallFun(maxClass(7))
+/*
 And also a nearest neighbor fallback function that would always 
 succeed if the equivalence class has at least one element (which 
 should always be the case).

@@ -89,5 +89,9 @@ equivalence relation.
         val is = (0 to n).map { k => Seq.fill(k)(1) ++ Seq.fill(n-k)(0) }
         val s = is.map {i => o(i, bp)}.map { x => normT(normP(x)) }
         s.exists(_ == ap)
-
+/*
+OPTC-equivalence can be implemented similarly to OPT-equivalence.  
+*/
+    def optcEq(a: AbsChord, b: AbsChord): Boolean = optEq(normOPC(a), normOPC(b))
+    
 end OPTIC

@@ -1,5 +1,8 @@
 package kulitta
 
+import utils.{given, _}
+import Random.{given, _}
+
 object QuotientSpaces
     type EqClass[A] = Seq[A] // equivalence class
     type QSpace[A] = Seq[EqClass[A]] // quotient space
@@ -35,4 +38,13 @@ x is in the quotient space, qs.
     def eqClass[A](qs: QSpace[A], r: EqRel[A])(x: A): EqClass[A] =
         val ind = qs.indexWhere(e => r(x, e.head))
         if ind < 0 then sys.error(s"(eqClass) No class for $x") else qs(ind)
+/*
+=============================
+
+Code for randomizing a list.
+*/
+    def randomize[A](sg: StdGen, rs: Seq[A]): Seq[A] =
+        val n = rs.length
+        val plist = randomRs((0, n-1), sg).distinct.take(n)
+        plist.map(rs(_))
 end QuotientSpaces

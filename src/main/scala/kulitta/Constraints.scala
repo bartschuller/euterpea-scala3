@@ -120,6 +120,9 @@ ADDITIONAL THESIS PREDICATES
     def satbFilter(x: AbsChord): Boolean =
         Seq[Predicate[AbsChord]](sorted, spaced(satbLimits), doubled(triads)).map(f => f(x)).find(!_).isEmpty
     
+    def satbFilter2(x: AbsChord): Boolean =
+        Seq[Predicate[AbsChord]](sorted, spaced(satbLimits)).map(f => f(x)).find(!_).isEmpty
+    
     val satbLimits = LazyList.continually((3, 12))
 
     val satbRanges = Seq((40,60), (47,67), (52,76), (60,81))
@@ -128,7 +131,18 @@ ADDITIONAL THESIS PREDICATES
 
     val satbOP: QSpace[AbsChord] = satbChords \ opEq
 
+    def satbR(g: StdGen, f: Predicate[AbsChord], r: EqRel[AbsChord]): QSpace[AbsChord] =
+        randomize(g, makeRange(satbRanges).filter(f)) \ r
+
     def pianoChord(x: AbsChord): Boolean =
         x.length <= 5 && x.max - x.min <= 12
+/*
+--- Pairs ---
+*/
+    def voiceLeading(preds: Seq[Predicate[(PitchNum,PitchNum)]])(x: AbsChord, y: AbsChord) =
+        preds.zipWith(x.zip(y))((pred, xy) => pred(xy)).find(!_).isEmpty
 
+    def vl7: Predicate[(AbsChord, AbsChord)] =
+        def f(a: Int, b: Int) = (a - b).abs <= 7
+        voiceLeading(LazyList.continually(f))
 end Constraints

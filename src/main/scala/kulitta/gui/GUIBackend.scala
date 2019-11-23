@@ -2,15 +2,20 @@ package kulitta
 package gui
 
 import utils.{given, _}
+import StdGen._
 import Random.{given, _}
 import foregrounds.JazzFG._
 import foregrounds.ClassicalFG._
+import foregrounds.SimplePianoFG._
 import grammars.MusicGrammars._
 import CType._
 import PostProc._
 import PTGG._
 import Term._
 import Search._
+import Constraints._
+import chordspaces.OPTIC._
+import QuotientSpaces._
 import euterpea.Music.{Music, Control, Pitch, Volume, addVolume}
 import Music._
 import Control.Instrument
@@ -134,9 +139,12 @@ styles of music according to the user's specifications.
         val k = if i.randKey then k2 else 0
         val fg = i.style match
             case Chorale => addVolume(127, buildChorale(gFG, absStructs, k, i.mode))
+            case WeirdChorale => addVolume(127, buildWChorale(gFG, absStructs, k, i.mode))
             case JazzChorale => addVolume(127, buildJChorale(gFG, absStructs, k, i.mode))
             case JazzChords => addVolume(127, buildJazzChords(gFG, absStructs, k, i.mode))
             case BossaNova => buildBossaNova(gFG, absStructs, k, i.mode)
+            case PianoChorale => addVolume(127, buildPianoChorale(gFG, absStructs, k, i.mode))
+            case PianoEtude1 => addVolume(127, buildPianoEtude1(gFG, absStructs, k, i.mode))
             case x => sys.error(s"makeMusic: style $x not implemented")
         fg
 /*
@@ -154,6 +162,35 @@ A chorale is pretty straightforward, using the ClassicalFG.lhs implementation.
             val partB = classicalFGp(g5, bChords)._2._2
             partA :+: partAp :+: partB :+: partA
 
+    def buildPianoChorale(g: StdGen, absStructs: List[(Constraints, List[RChord])], k: Int, m: Mode): Music[Pitch] =
+        absStructs match
+        case List((cons, x)) =>
+            val (lh, rh) = simplePianoFG1x(ctTrans(k)(x).map(toAbsChord), g, cons)
+            lh :=: rh
+        case List((cons1, a), (cons2, b)) =>
+            val LazyList(g1, g2, g3) = splitN(g).take(3)
+            val (lhA, rhA) = simplePianoFG1x(ctTrans(k)(a).map(toAbsChord), g1, cons1)
+            val (lhAp, rhAp) = simplePianoFG1x(ctTrans(k)(a).map(toAbsChord), g2, cons1)
+            val (lhB, rhB) = simplePianoFG1x(ctTrans(k)(b).map(toAbsChord), g3, cons2)
+            val partA = lhA :=: rhA
+            val partAp = lhAp :=: rhAp
+            val partB = lhB :=: rhB
+            partA :+: partAp :+: partB :+: partA
+    
+    def buildPianoEtude1(g: StdGen, absStructs: List[(Constraints, List[RChord])], k: Int, m: Mode): Music[Pitch] =
+        absStructs match
+        case List((cons, x)) =>
+            val (lh, rh) = simplePianoFGMelx(ctTrans(k)(x).map(toAbsChord), g, cons)._2
+            lh :=: rh
+        case List((cons1, a), (cons2, b)) =>
+            val LazyList(g1, g2, g3) = splitN(g).take(3)
+            val (lhA, rhA) = simplePianoFGMelx(ctTrans(k)(a).map(toAbsChord), g1, cons1)._2
+            val (lhAp, rhAp) = simplePianoFGMelx(ctTrans(k)(a).map(toAbsChord), g2, cons1)._2
+            val (lhB, rhB) = simplePianoFGMelx(ctTrans(k)(b).map(toAbsChord), g3, cons2)._2
+            val partA = lhA :=: rhA
+            val partAp = lhAp :=: rhAp
+            val partB = lhB :=: rhB
+            partA :+: partAp :+: partB :+: partA
 /*
 A "jazz chorale" ads an extra step in the foreground generation, converting 
 numerals to jazz chords before running the classical algorithms.
@@ -172,6 +209,34 @@ numerals to jazz chords before running the classical algorithms.
             val partAp = classicalFGp(g4, aChords)._2._2
             val partB = classicalFGp(g5, bChords)._2._2
             partA :+: partAp :+: partB :+: partA
+/*
+A "weird chorale" is one where numerals are run through OPTC-space before
+applying a classical foreground.
+*/
+    val qOPTC = satbR(mkStdGen(123), satbFilter2, optcEq)
+/*
+Note: the key will not affect weird chorales due to the use 
+of OPTC-equivalence.
+*/
+    def buildWChorale(g: StdGen, absStructs: List[(Constraints, List[RChord])], k: Int, m: Mode): Music[Pitch] =
+        absStructs match
+        case List((cons, x)) =>
+            val (g1, g2) = g.split
+            val optChords = toOPTC(g1, x, k, m)
+            classicalFGp(g2, optChords)._2._2
+        case List((cons1, a), (cons2, b)) =>
+            val LazyList(g1, g2, g3, g4, g5) = splitN(g).take(5)
+            val aChords = toOPTC(g1, a, k, m)
+            val bChords = toOPTC(g2, b, k, m)
+            val partA = classicalFGp(g3, aChords)._2._2
+            val partAp = classicalFGp(g4, aChords)._2._2
+            val partB = classicalFGp(g5, bChords)._2._2
+            partA :+: partAp :+: partB :+: partA
+
+    def toOPTC(g: StdGen, x: List[RChord], k: Int, m: Mode) =
+        val aChords = atTrans(k)(x.map(toAbsChord))
+        val es = aChords.map(_._3).map(eqClass(qOPTC, optcEq))
+        aChords.zipWith(greedyProgp(vl7, nearFall, g, es))(newP)
 /*
 Jazz foregrounds are created using the two algorithms in JazzFG.lhs.
 */
