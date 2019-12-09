@@ -145,6 +145,7 @@ styles of music according to the user's specifications.
             case BossaNova => buildBossaNova(gFG, absStructs, k, i.mode)
             case PianoChorale => addVolume(127, buildPianoChorale(gFG, absStructs, k, i.mode))
             case PianoEtude1 => addVolume(127, buildPianoEtude1(gFG, absStructs, k, i.mode))
+            case PianoEtude2 => addVolume(127, buildPianoEtude2(gFG, absStructs, k, i.mode))
             case x => sys.error(s"makeMusic: style $x not implemented")
         fg
 /*
@@ -187,6 +188,21 @@ A chorale is pretty straightforward, using the ClassicalFG.lhs implementation.
             val (lhA, rhA) = simplePianoFGMelx(ctTrans(k)(a).map(toAbsChord), g1, cons1)._2
             val (lhAp, rhAp) = simplePianoFGMelx(ctTrans(k)(a).map(toAbsChord), g2, cons1)._2
             val (lhB, rhB) = simplePianoFGMelx(ctTrans(k)(b).map(toAbsChord), g3, cons2)._2
+            val partA = lhA :=: rhA
+            val partAp = lhAp :=: rhAp
+            val partB = lhB :=: rhB
+            partA :+: partAp :+: partB :+: partA
+    
+    def buildPianoEtude2(g: StdGen, absStructs: List[(Constraints, List[RChord])], k: Int, m: Mode): Music[Pitch] =
+        absStructs match
+        case List((cons, x)) =>
+            val (lh, rh) = simplePianoFGArpx(ctTrans(k)(x).map(toAbsChord), g, cons)._2
+            lh :=: rh
+        case List((cons1, a), (cons2, b)) =>
+            val LazyList(g1, g2, g3) = splitN(g).take(3)
+            val (lhA, rhA) = simplePianoFGArpx(ctTrans(k)(a).map(toAbsChord), g1, cons1)._2
+            val (lhAp, rhAp) = simplePianoFGArpx(ctTrans(k)(a).map(toAbsChord), g2, cons1)._2
+            val (lhB, rhB) = simplePianoFGArpx(ctTrans(k)(b).map(toAbsChord), g3, cons2)._2
             val partA = lhA :=: rhA
             val partAp = lhAp :=: rhAp
             val partB = lhB :=: rhB

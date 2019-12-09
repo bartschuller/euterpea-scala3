@@ -16,8 +16,8 @@ object GUI
     @main def interactive(): Unit =
         //val i = Info(JazzChorale, AABA, HandBuilt, Major, false, false, null)
         //automated(i, 1L, "jazzchorale-aaba-hand-major-1.mid")
-        val i = Info(PianoEtude1, AABA, HandBuilt, Major, false, false, null)
-        automated(i, 1L, "pianoetude1-aaba-hand-major-1.mid")
+        val i = Info(PianoEtude2, AABA, HandBuilt, Major, false, false, null)
+        automated(i, 1L, "pianoetude2-aaba-hand-major-1.mid")
 
     def automated(i: Info, seed: Long, outFile: String, assignInstruments: Boolean = true): Unit =
         val (m, abst) = makePiece(mkStdGen(seed), i, assignInstruments)

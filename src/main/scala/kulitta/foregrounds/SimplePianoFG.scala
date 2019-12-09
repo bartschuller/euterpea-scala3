@@ -146,4 +146,83 @@ object SimplePianoFG
             val minDist = dists.min
             val (gp, i) = choose(g, dists.zipWithIndex.filter(_._1 == minDist).map(_._2))
             (gp, e(i))
+/*
+==============================================
+
+    Arpeggio-based pieces, playable on piano with pedal. They may not 
+    always be best played with the indicated split of right and left hands.
+    Sometimes the lowest note of the right-hand part may be better played
+    by the left-hand, although it can difficult to automatically represent 
+    on a score this way with software such as MuseScore.
+*/
+    def simplePianoFGArpx(aChords: List[TChord], g0: StdGen, k: Constraints): (StdGen, (Music[Pitch], Music[Pitch])) =
+        val (g1, tcs) = classicalCS2xp(g0, aChords, k)
+        val (tLH, tRH) = splitTChords(1, tcs)
+        val rhM = toArpMusic(tRH)
+        val lhM = vsToMusic(toVoices(tLH))
+        (g1, (lhM, rhM))
+/*
+Another redoing of the chorale-inspired chord spaces.
+*/
+    def classicalCS2xp(g: StdGen, aChords: List[TChord], consts: Constraints): (StdGen, Seq[TChord]) =
+        val satbRangesx = Seq((30,60), (47,67), (52,76), (60,81))
+        val satbChordsx = makeRange(satbRangesx).filter(x => arpFilter(x) && satbFilter(x))
+        val satbOPx = satbChordsx  \ opEq
+        val justChords = aChords.map(_._3)
+        val (g1, g2) = g.split
+        val (g3, eqs) = classBass2(0.8, g2, justChords.map(eqClass(satbOPx, opcEq)))
+        val csChords = greedyLet[AbsChord](myClass, nearFall, consts, eqs, g3)
+        val aChordsp = aChords.zipWith(csChords) { case ((a,b,c),d) => (a,b,d) }
+        (g3, aChordsp)
+
+    def classBass2(thresh: Double, g: StdGen, ess: List[EqClass[AbsChord]]): (StdGen, List[EqClass[AbsChord]]) =
+        ess match
+        case Nil => (g, Nil)
+        case List(e) => classBass(1.0, g, ess)
+        case e :: es =>
+            val (gp, ep) = classBass(thresh, g, List(e))
+            val (gpp, esp) = classBass2(thresh, gp, es)
+            (gpp, ep ++ esp)
+/*
+Constraint for appropriate spacings between voices (treated as 4-note chords,
+not yet arpeggiated).
+*/
+    def arpFilter(ac: AbsChord): Boolean =
+        def arpFilterSub(pss: AbsChord): Boolean =
+            pss match
+            case p1 :: p2 :: ps => p1-p2 <= 6 && arpFilterSub(p2 :: ps)
+            case _ => true
+        arpFilterSub(ac.tail)
+    
+    def myClass(c1: AbsChord, c2: AbsChord): Boolean =
+        c1 != c2 && noCPL(7)(c1, c2)
+/*
+For splitting a TChord into lefthand and righthand sections by voice
+count. For example, if amt = 1, a single voice will end up in the 
+left hand portion.
+*/
+    def splitTChords(amt: Int, chords: Seq[TChord]): (Seq[TChord], Seq[TChord]) =
+        def f(amt: Int)(km: Key, d: Dur, x: AbsChord) =
+            ((km, d, x.take(amt)), (km, d, x.drop(amt)))
+        chords.map(f(amt)).unzip
+/*
+Arpeggiate a bunch of TChords.
+*/
+    def toArpMusic(ts: Seq[TChord]): Music[Pitch] =
+        ts match
+        case Seq() => rest(0)
+        case Seq((k,d,aps)) => chord(aps.map(p => note(d, pitch(p))))
+        case x +: t => (rest(sn) :+: vsToMusic(Seq(toArp(x)))) :+: toArpMusic(t)
+
+    def toArp(tc: TChord): List[TNote] =
+        val (km@(k,m), d, aps) = tc
+        def takeDur(dur: Dur, xss: LazyList[TNote]): List[TNote] =
+            (dur, xss) match
+            case (_, LazyList()) => Nil
+            case (0, _) => Nil
+            case (d, (h@(k, dp, x)) #:: t) =>
+                if d >= dp then h :: takeDur(d-dp, t) else List((k,d,x))
+        if d <= sn then List((km, d, aps.head)) else
+            takeDur(d-sn, LazyList.continually(aps.map(x => (km, sn, x))).flatten)
+
 end SimplePianoFG
