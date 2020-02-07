@@ -4,6 +4,7 @@ import utils.{given, _}
 
 class RatTests
     @Test def construction(): Unit =
+        import scala.language.implicitConversions
         val r1: Rat = 1
         assertEquals(Rat(1,1), r1)
         assertEquals("1/1", r1.toString)
