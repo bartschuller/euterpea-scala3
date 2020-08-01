@@ -1,12 +1,12 @@
 package euterpea.midi
-import utils.{given, _}
+import utils.{given _, _}
 import MEvent._
 import Midi._
 import Message._
 import GeneralMidi._
 import euterpea.Music.InstrumentName
 import InstrumentName.Percussion
-object ToMidi
+object ToMidi:
     type Channel = Int
     type ProgNum = Int
     type UserPatchMap = Map[InstrumentName, Channel]

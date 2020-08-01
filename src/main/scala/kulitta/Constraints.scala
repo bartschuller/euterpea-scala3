@@ -6,8 +6,8 @@ Scala translation by Bart Schuller
 */
 import QuotientSpaces._
 import chordspaces.OPTIC._
-import utils.{given, _}
-object Constraints
+import utils.{given _, _}
+object Constraints:
 /*
 Musical constraints are modeled as predicates over some number of
 chords. These are "hard" constraints such that a piece of music 

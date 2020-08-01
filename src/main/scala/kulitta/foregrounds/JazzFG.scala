@@ -9,7 +9,7 @@ import PostProc._
 import QuotientSpaces._
 import Constraints._
 import Search._
-import utils.{given, _}
+import utils.{given _, _}
 import Random._
 import euterpea.Music.{Music,Pitch, rest, note, chord, pitch, instrument, InstrumentName, addVolume, Volume}
 import Music.:+:
@@ -21,7 +21,7 @@ Simple Jazz Foreground Algorithms
 Donya Quick
 Scala translation by Bart Schuller
 */
-object JazzFG
+object JazzFG:
 /*
 First, we need to find the modes for Roman numerals interpreted
 in a particular key/mode. The type JTriple is actually a synonym 

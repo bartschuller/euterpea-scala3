@@ -7,14 +7,14 @@ Scala translation by Bart Schuller
 Implementation of a search algorithm for traversing chord spaces using
 let-in constraints as well as progression level predicates.
 */
-import utils.{given, _}
+import utils.{given _, _}
 import QuotientSpaces._
 import chordspaces.OPTIC._
 import Constraints._
 import PTGG._
 import Term._
 
-object Search
+object Search:
     type Constraints = List[List[(Int, Int)]]
     type Index = Int
     type Bound = Int

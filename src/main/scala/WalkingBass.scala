@@ -6,11 +6,11 @@ Scala translation by Bart Schuller
 The implementation here is much like in SimpleWalkingBass.lhs, 
 but it adds ornaments between some pitches.
 */
-import utils.{given, _}
+import utils.{given _, _}
 import Random._
 import jazz.JazzTypes._
 import jazz.Utils._
-import euterpea.Music.{given, _}
+import euterpea.Music.{given _, _}
 import Music._
 import euterpea.midi.MEvent._
 import SegCat._
@@ -26,7 +26,7 @@ pitches, assumed to be one per beat, and adding ornaments. The
 result is a Music (AbsPitch, Volume) value.
 */
 
-object WalkingBass
+object WalkingBass:
     def bassToMusic(aps: List[AbsPitch], g: StdGen): Music[(AbsPitch, Volume)] =
         aps match
         case Nil => rest(0)

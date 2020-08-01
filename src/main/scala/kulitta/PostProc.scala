@@ -9,10 +9,10 @@ Post processing module to turn Terms into music using Euterpea.
 import PTGG._
 import grammars.MusicGrammars._
 import chordspaces.OPTIC._
-import utils.{given, _}
+import utils.{given _, _}
 import euterpea.Music.{Mode => _, _}
 
-object PostProc
+object PostProc:
 /*
 Intermediate types:
 (NOTE: AbsPitch = PitchNum)

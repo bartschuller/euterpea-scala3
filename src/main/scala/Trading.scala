@@ -1,8 +1,8 @@
-import utils.{given, _}
+import utils.{given _, _}
 import Random._
 import jazz.JazzTypes._
 import jazz.Utils._
-import euterpea.Music.{given, _}
+import euterpea.Music.{given _, _}
 import euterpea.midi.MEvent._
 import SegCat._
 import PartType._
@@ -33,7 +33,7 @@ of each algorithm can is easy to assess by ear.
 Soloist A is simply going to play one of three possible
 patterns repeated for the length of the segment.
 */
-object Trading
+object Trading:
     val aPats: Seq[Seq[AbsPitch]] = Seq(
         Seq(60,62,64,65,67,69,71,72),
         Seq(60,64,67,64),

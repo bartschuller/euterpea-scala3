@@ -1,6 +1,6 @@
 package kulitta
 package gui
-import utils.{given, _}
+import utils.{given _, _}
 import StdGen._
 import GUIBackend._
 import Style._
@@ -12,7 +12,7 @@ import euterpea.midi.MEvent._
 import euterpea.midi.ToSmidi._
 import smidi._
 
-object GUI
+object GUI:
     @main def interactive(): Unit =
         //val i = Info(JazzChorale, AABA, HandBuilt, Major, false, false, null)
         //automated(i, 1L, "jazzchorale-aaba-hand-major-1.mid")

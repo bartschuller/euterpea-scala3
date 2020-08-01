@@ -1,24 +1,24 @@
 package utils
 
-trait IntOps
+trait IntOps:
     /** modulus with positive result for positive b */
     def (a: Int) mod (b: Int) =
         val x = a % b; if (x < 0) x + b else x
 given IntOps
 
-trait SeqOps
+trait SeqOps:
     /** combine to elements of 2 sequences using a function */
     def [A,B,C](as: Seq[A]) zipWith (bs: Seq[B]) (f: (A, B) => C): Seq[C] =
         as.zip(bs).map((a, b) => f(a,b))
 given SeqOps
 
-trait RandomGen[G <: RandomGen[_]]
+trait RandomGen[G <: RandomGen[_]]:
     def next: (Int, G)
     def split: (G, G)
     def nextBetween(lo: Int, hi: Int): (Int, G)
     def nextBetween(lo: Double, hi: Double): (Double, G)
     
-class StdGen(private val r: java.util.Random) extends RandomGen[StdGen]
+class StdGen(private val r: java.util.Random) extends RandomGen[StdGen]:
     // The returned StdGen contains the mutable java Random which will generate a fresh number
     // The original StdGen will have memorized the returned value, preventing new calls to
     // the java Random which would affect the other one.
@@ -32,23 +32,23 @@ class StdGen(private val r: java.util.Random) extends RandomGen[StdGen]
     def nextBetween(lo: Double, hi: Double): (Double, StdGen) =
         (lo+(hi-lo)*r.nextDouble(), StdGen(r))
 
-object StdGen
+object StdGen:
     def mkStdGen(seed: Long) = StdGen(new java.util.Random(seed))
 
-trait Bounded[A]
+trait Bounded[A]:
     def range: (A, A) = (minBound, maxBound)
     def minBound: A
     def maxBound: A
 
-object Bounded
-    given Bounded[Int]
+object Bounded:
+    given Bounded[Int]:
         def minBound = Integer.MIN_VALUE
         def maxBound = Integer.MAX_VALUE
 
 /** With a source of random number supply in hand, the Random class allows the programmer to extract random values of a variety of types.
 Minimal complete definition: randomR and random.
 */
-trait Random[A]
+trait Random[A]:
     /**
     * Takes a range (lo,hi) and a random number generator g, and returns a random value uniformly distributed in the closed interval [lo,hi], together with a new generator. It is unspecified what happens if lo>hi. For continuous types there is no requirement that the values lo and hi are ever produced, but they may be, depending on the implementation and the interval.
     */
@@ -56,7 +56,7 @@ trait Random[A]
     def random[G <: RandomGen[_], B <: A : Bounded](g: RandomGen[G]): (A, G) =
         randomR(summon[Bounded[B]].range, g)
 
-object Random
+object Random:
     import scala.language.implicitConversions
     def randomR[G <: RandomGen[_], A: Random](range: (A, A), g: RandomGen[G]): (A, G) =
         summon[Random[A]].randomR(range, g)
@@ -76,25 +76,25 @@ object Random
         val (g1, g2) = g.split
         g1 #:: splitN(g2)
     
-    given Random[Int]
+    given Random[Int]:
         def randomR[G <: RandomGen[_]](range: (Int, Int), g: RandomGen[G]): (Int, G) =
             g.nextBetween(range._1, range._2)
         override def random[G <: RandomGen[_], B <: Int : Bounded](g: RandomGen[G]): (Int, G) =
             g.next
         
-    given Random[Double]
+    given Random[Double]:
         def randomR[G <: RandomGen[_]](range: (Double, Double), g: RandomGen[G]): (Double, G) =
             g.nextBetween(range._1, range._2)
 
-trait Enum[A]
+trait Enum[A]:
     def toEnum(i: Int): A
     def fromEnum(a: A): Int
     def enumFrom(a: A): Seq[A]
-object Enum
-    def apply[A](given Enum[A]) = summon[Enum[A]]
+object Enum:
+    def apply[A](using Enum[A]) = summon[Enum[A]]
 
 // later make it generic on scala.math.Integral?
-class Rat(x: Int, y: Int) derives Eql
+class Rat(x: Int, y: Int) derives Eql:
     private def gcd(a: Int, b: Int): Int = if (b == 0) a else gcd(b, a % b)
     private val g = gcd(x, y)
     val (numer, denom) =
@@ -127,13 +127,13 @@ class Rat(x: Int, y: Int) derives Eql
         case _ => false
     override def toString() = s"$numer/$denom"
 end Rat
-object Rat
+object Rat:
     def apply(x: Int, y: Int): Rat = new Rat(x, y)
     def apply(x: Int): Rat = Rat(x, 1)
 end Rat
 
 import scala.util.FromDigits
-given FromDigits[Rat]
+given FromDigits[Rat]:
     def fromDigits(digits: String): Rat = Rat(digits.toInt)
 
 /**

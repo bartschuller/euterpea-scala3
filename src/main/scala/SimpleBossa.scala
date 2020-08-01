@@ -14,8 +14,8 @@ harmony, but the lead makes use of a very simplistic piece of state
 information (the last pitch played).
 */
 
-import utils.{given, _}
-import euterpea.Music.{given, _}
+import utils.{given _, _}
+import euterpea.Music.{given _, _}
 import Music._
 import euterpea.midi.MEvent._
 import jazz.JazzTypes._
@@ -27,7 +27,7 @@ import euterpea.midi.ToSmidi._
 import smidi._
 import scala.language.implicitConversions
 
-object SimpleBossa
+object SimpleBossa:
 /*
 Utility function to cut a piece of music down to the duration 
 of a segment:
@@ -37,7 +37,7 @@ of a segment:
 /*
 Our state, which is only used by the soloing algorithm:
 */
-    enum SimpleState
+    enum SimpleState:
         case LastPitch(ap: AbsPitch)
         case NullState
     import SimpleState._

@@ -5,17 +5,17 @@ Classical Foreground Module
 Donya Quick
 Scala translation by Bart Schuller
 */
-import utils.{given, _}
+import utils.{given _, _}
 import QuotientSpaces._
 import chordspaces.OPTIC._
 import PostProc._
 import Search._
 import Constraints._
 import grammars.MusicGrammars._
-import Random.{given, _}
+import Random.{given _, _}
 import euterpea.Music.{Music, Pitch, InstrumentName}
 
-object ClassicalFG
+object ClassicalFG:
     case class CConstants(
         ntLimC: Int, // limit for neighboring tone distance
         ptLimC: Int, // limit for passing tone distance
@@ -33,12 +33,12 @@ Get all pitches shared between the scales of two TNotes
         def baseScale(key: Key): Seq[AbsPitch] =
             val (k, m) = key
             normOP(t(k)(getScale(m)))
-        val o1 = tnP(t1) / 12
-        val o2 = tnP(t2) / 12
+        val o1 = t1.tnP / 12
+        val o2 = t2.tnP / 12
         val Seq(oMin, oMax) = Seq(o1, o2).sorted
         val offs = Seq(oMin-1, oMin, oMax, oMax+1).map(_ * 12)
-        val s1 = baseScale(tnK(t1))
-        val s2 = baseScale(tnK(t2))
+        val s1 = baseScale(t1.tnK)
+        val s2 = baseScale(t2.tnK)
         offs.flatMap(o => t(o)(s1.filter(s => s2.exists(_ == s)))).distinct
 
 /*
@@ -56,7 +56,7 @@ chosen by pickPT below may end up being other categories of non-chordal
 tones in music theory.
 */
     def pickPT(lim: AbsPitch)(g: StdGen, t1: TNote, t2: TNote): (StdGen, Option[AbsPitch]) =
-        val Seq(pMin, pMax) = Seq(tnP(t1), tnP(t2)).sorted
+        val Seq(pMin, pMax) = Seq(t1.tnP, t2.tnP).sorted
         def f(x: AbsPitch) = x > pMin && x < pMax && (x - pMin <= lim || pMax -x <= lim)
         val psp = allPs(t1, t2).filter(f)
         if pMin == pMax || psp.isEmpty then (g, None) else
@@ -68,7 +68,7 @@ definition here is fairly broad and may produce other categorie of non-
 chordal tones as a result.
 */
     def pickNT(lim: AbsPitch)(g: StdGen, t1: TNote, t2: TNote): (StdGen, Option[AbsPitch]) =
-        val Seq(pMin, pMax) = Seq(tnP(t1), tnP(t2)).sorted
+        val Seq(pMin, pMax) = Seq(t1.tnP, t2.tnP).sorted
         def f(x: AbsPitch) = (x < pMin && pMin - x <= lim) || (x > pMax && x - pMax <= lim)
         val psp = allPs(t1, t2).filter(f)
         val (iNew, gp) = randomR((0, psp.length - 1), g)
@@ -78,8 +78,8 @@ chordal tones as a result.
 Functions for adding anticipations and repetitions are simple to define. 
 A "do nothing" operations is also a useful option to have.
 */
-    def anticip(g: StdGen, t1: TNote, t2: TNote): (StdGen, Option[AbsPitch]) = (g, Some(tnP(t2)))
-    def rept(g: StdGen, t1: TNote, t2: TNote): (StdGen, Option[AbsPitch]) = (g, Some(tnP(t1)))
+    def anticip(g: StdGen, t1: TNote, t2: TNote): (StdGen, Option[AbsPitch]) = (g, Some(t2.tnP))
+    def rept(g: StdGen, t1: TNote, t2: TNote): (StdGen, Option[AbsPitch]) = (g, Some(t1.tnP))
     def doNothing(g: StdGen, t1: TNote, t2: TNote): (StdGen, Option[AbsPitch]) = (g, None)
 /*
 Some of the functions above need access to constants. We use the 
@@ -104,8 +104,8 @@ a probability of application for each voice.
 
     def splitP(consts: CConstants, g: StdGen, newP: AbsPitch, t: TNote): (StdGen, List[TNote]) =
         val (r, gp) = randomR((0.0, 1.0), g)
-        val dNew = if r < consts.pHalfC then tnD(t) / 2 else en
-        (gp, List((tnK(t), tnD(t) - dNew, tnP(t)), (tnK(t), dNew, newP)))
+        val dNew = if r < consts.pHalfC then t.tnD / 2 else en
+        (gp, List((t.tnK, t.tnD - dNew, t.tnP), (t.tnK, dNew, newP)))
 /*
 Here we assume that the contexts include the voice in question. The |i| argument is the voice number.
 The function only returns modifications of the first chord.
@@ -138,10 +138,10 @@ function stochastically ties notes in a voice.
         case t1 :: t2 :: ts =>
             val (r, g1) = randomR((0.0, 1.0), g)
             val (g2, (t2p :: tsp)) = stochTie(consts, g1, t2 :: ts)
-            val d1 = tnD(t1)
-            val d2p = tnD(t2p)
-            if tnP(t1) == tnP(t2p) && r < consts.pTieC
-            then (g2, (tnK(t1), d1+d2p, tnP(t1)) :: tsp)
+            val d1 = t1.tnD
+            val d2p = t2p.tnD
+            if t1.tnP == t2p.tnP && r < consts.pTieC
+            then (g2, (t1.tnK, d1+d2p, t1.tnP) :: tsp)
             else (g2, t1 :: t2p :: tsp)
         case _ => (g, tss)
 /*

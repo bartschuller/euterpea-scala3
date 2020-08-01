@@ -1,9 +1,9 @@
 package kulitta
 package gui
 
-import utils.{given, _}
+import utils.{given _, _}
 import StdGen._
-import Random.{given, _}
+import Random.{given _, _}
 import foregrounds.JazzFG._
 import foregrounds.ClassicalFG._
 import foregrounds.SimplePianoFG._
@@ -21,8 +21,8 @@ import Music._
 import Control.Instrument
 import java.io.File
 
-object GUIBackend
-    enum Style
+object GUIBackend:
+    enum Style:
         case Chorale // in style of JS Bach
         case PianoChorale 
         case JazzChorale // grammar, jazz chords, chorale foreground
@@ -32,10 +32,10 @@ object GUIBackend
         case PianoEtude1 
         case PianoEtude2
     import Style._
-    enum Form
+    enum Form:
         case Phrase, AABA
     import Form._
-    enum GramType
+    enum GramType:
         case HandBuilt, Learned
     import GramType._
     case class Info(

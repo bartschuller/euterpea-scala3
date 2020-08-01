@@ -9,7 +9,7 @@ import Midi._
 import scala.Numeric.Implicits._
 import scala.language.implicitConversions
 
-object Midi
+object Midi:
     case class Midi(fileType: FileType, timeDiv: TimeDiv, tracks: List[Track[Ticks]])
     sealed trait FileType
     case object SingleTrack extends FileType
@@ -29,7 +29,7 @@ object Midi
     type Bank = Int
     type PitchWheelValue = Int
     type Tempo = Int
-    enum Message
+    enum Message:
         case NoteOff(channel: Channel, key: Key, velocity: Velocity)
         case NoteOn(channel: Channel, key: Key, velocity: Velocity)
         case KeyPressure(channel: Channel, key: Key, pressure: Pressure)

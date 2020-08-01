@@ -2,6 +2,6 @@ package euterpea.midi
 
 import smidi._
 
-object ExportMidiFile
+object ExportMidiFile:
     val foo = 1
 end ExportMidiFile

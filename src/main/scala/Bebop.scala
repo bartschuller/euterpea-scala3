@@ -9,9 +9,9 @@ This file demonstrates 2 things:
 
 Part functions are given for drums, bass, chords (piano), and solo.
 */
-import utils.{given, _}
+import utils.{given _, _}
 import Random._
-import euterpea.Music.{given, _}
+import euterpea.Music.{given _, _}
 import Music._
 import euterpea.midi.MEvent._
 import jazz.JazzTypes._
@@ -22,7 +22,7 @@ import euterpea.midi.ToSmidi._
 import smidi._
 import scala.language.implicitConversions
 
-object Bebop
+object Bebop:
 /*
 This implementation is going to use an combined state type that holds 
 all the information any part would need. Each part will only use/access 

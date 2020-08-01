@@ -11,9 +11,9 @@ The implementation here uses type Music (AbsPitch,Volume) to
 achieve more diverse textures (in Music AbsPitch, the volumes
 are all constant). 
 */
-import utils.{given, _}
+import utils.{given _, _}
 import Random._
-import euterpea.Music.{given, _}
+import euterpea.Music.{given _, _}
 import Music._
 import Primitive._
 import euterpea.midi.MEvent._
@@ -26,7 +26,7 @@ import euterpea.midi.ToSmidi._
 import smidi._
 import scala.language.implicitConversions
 
-object Hypnotize
+object Hypnotize:
 /*
 State definitions. Only the bass is keeping track of state here.
 A data type definition was used to show how state information can 

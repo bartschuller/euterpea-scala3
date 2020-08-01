@@ -1,3 +1,4 @@
 target/
 /.dotty-ide*
 /*.mid
+/.idea

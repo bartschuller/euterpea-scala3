@@ -1,15 +1,15 @@
 package jazz
-import utils.{given, _}
-import euterpea.Music.{given, _}
+import utils.{given _, _}
+import euterpea.Music.{given _, _}
 import Music._
 
-object JazzTypes
+object JazzTypes:
 
     /* A part name refers to a particular roll in improvisational jazz. We'll define
     four and allow an additional custom constructor for generality.
     */
 
-    enum PartType
+    enum PartType:
         case Solo, Harmony, Bass, Drums
         case PartType(name: String)
     // deriving Eq, Show, Ord
@@ -38,12 +38,12 @@ object JazzTypes
     the lead sheet as a composition rather than as simply a chord progression.
     */
 
-    enum SegStyle[+A]
+    enum SegStyle[+A]:
         case Free
         case FixedPitch(piches: Seq[AbsPitch])
         case FixedMusic(music: Music[A])
 
-    enum SegCat
+    enum SegCat:
         case Intro, Regular, Bridge, Ending, End
         case CustomSeg(name: String)
 

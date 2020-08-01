@@ -1,10 +1,10 @@
 package jazz
-import utils.{given, _}
+import utils.{given _, _}
 import jazz.JazzTypes._
 import euterpea.Music._
 import Primitive._
 
-object Utils
+object Utils:
     type PitchSpace = Seq[AbsPitch]
     def filterByScale(s: Scale)(ps: PitchSpace): PitchSpace =
         ps.filter(p => s.contains(p mod 12))

@@ -1,9 +1,9 @@
 package kulitta
 
-import utils.{given, _}
-import Random.{given, _}
+import utils.{given _, _}
+import Random.{given _, _}
 
-object QuotientSpaces
+object QuotientSpaces:
     type EqClass[A] = Seq[A] // equivalence class
     type QSpace[A] = Seq[EqClass[A]] // quotient space
     type Predicate[A] = A => Boolean

@@ -6,8 +6,8 @@ Donya Quick and Paul Hudak
 Scala translation by Bart Schuller
 */
 import QuotientSpaces._
-import utils.{given, _}
-object OPTIC
+import utils.{given _, _}
+object OPTIC:
 /*
 Type definitions:
 */

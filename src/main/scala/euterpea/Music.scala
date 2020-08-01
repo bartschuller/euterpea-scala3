@@ -1,20 +1,20 @@
 package euterpea
-import utils.{given, _}
+import utils.{given _, _}
 import scala.language.implicitConversions
 
-object Music
+object Music:
     type AbsPitch = Int
     type Octave = Int
     type Pitch = (PitchClass, Octave)
     type Dur = Rat
-    enum PitchClass
+    enum PitchClass:
         case Cff, Cf, C, Dff, Cs, Df, Css, D, Eff, Ds,
             Ef, Fff, Dss, E, Ff, Es, F, Gff, Ess, Fs,
             Gf, Fss, G, Aff, Gs, Af, Gss, A, Bff, As,
             Bf, Ass, B, Bs, Bss
     // deriving (Show, Eq, Ord, Read, Enum, Bounded)
 
-    enum Primitive[A]
+    enum Primitive[A]:
         case Note(dur: Dur, a: A)
         case Rest(dur: Dur)
         def pMap[B](f: Function1[A,B]): Primitive[B] =
@@ -23,7 +23,7 @@ object Music
             case Rest(d) => Rest(d)
     // deriving Show, Eq, Ord
 
-    enum Music[A]
+    enum Music[A]:
         def :=:(that: Music[A]): Music[A] = Music.:=:(this, that)
         case Prim(prim: Primitive[A])                 // primitive value
         case :+:(lm: LazyList[Music[A]])              // sequential composition
@@ -35,10 +35,10 @@ object Music
             case :+:(lm) => :+:(lm.map(_.mMap(f)))
             case :=:(m1, m2) => m1.mMap(f) :=: m2.mMap(f)
             case Modify(c, m) => Modify(c, m.mMap(f))
-    object Music
+    object Music:
         def [A](m1: Music[A]) :+: (m2: => Music[A]): Music[A] = Music.:+:(m1 #:: LazyList(m2))
 
-    enum Control
+    enum Control:
         case Tempo(r: Rat) // scale the tempo
         case Transpose(p: AbsPitch) // transposition
         case Instrument(i: InstrumentName) // instrument label
@@ -46,12 +46,12 @@ object Music
         case KeySig(pc: PitchClass, mode: Mode) // key signature and mode
         case Custom(name: String) // for user-specified controls
 
-    enum Mode
+    enum Mode:
         case Major, Minor,
              Ionian, Dorian, Phrygian, Lydian, Mixolydian, Aeolian, Locrian
         case CustomMode(name: String)
 
-    enum InstrumentName
+    enum InstrumentName:
         case AcousticGrandPiano, BrightAcousticPiano, ElectricGrandPiano,
             HonkyTonkPiano, RhodesPiano, ChorusedPiano,
             Harpsichord, Clavinet, Celesta,
@@ -97,27 +97,27 @@ object Music
             Applause, Gunshot, Percussion
         case CustomInstrument(name: String)
 
-    enum PhraseAttribute
+    enum PhraseAttribute:
         case Dyn(dyn: Dynamic)
         case Tmp(tempo: TempoAttr)
         case Art(art: Articulation)
         case Orn(orn: Ornament)
     
-    enum Dynamic
+    enum Dynamic:
         case Accent(acc: Rat)
         case Crescendo(cres: Rat)
         case Diminuendo(dim: Rat)
         case StdLoudness(sl: StdLoudnessId)
         case Loudness(l: Rat)
     
-    enum StdLoudnessId
+    enum StdLoudnessId:
         case PPP, PP, P, MP, SF, MF, NF, FF, FFF
 
-    enum TempoAttr
+    enum TempoAttr:
         case Ritardando(rit: Rat)
         case Accelerando(acc: Rat)
     
-    enum Articulation
+    enum Articulation:
         case Staccato(stac: Rat)
         case Legato(leg: Rat)
         case Slurred(slur: Rat)
@@ -125,7 +125,7 @@ object Music
              DownBow, UpBow, Harmonic, Pizzicato, LeftPizz,
              BartokPizz, Swell, Wedge, Thumb, Stopped
     
-    enum Ornament
+    enum Ornament:
         case Trill, Mordent, InvMordent, DoubleMordent,
              Turn, TrilledTurn, ShortTrill,
              Arpeggio, ArpeggioUp, ArpeggioDown
@@ -133,7 +133,7 @@ object Music
         case Head(h: NoteHead)
         case DiatonicTrans(dt: Int)
     
-    enum NoteHead
+    enum NoteHead:
         case DiamondHead, SquareHead, XHead, TriangleHead,
              TremoloHead, SlashHead, ArtHarmonic, NoHead
     
@@ -142,7 +142,7 @@ object Music
     def addVolume(v: Volume, m: Music[Pitch]): Music[(Pitch, Volume)] =
         m.mMap((_, v))
     
-    enum NoteAttribute
+    enum NoteAttribute:
         case VolumeAttr(v: Int)
         case Fingering(f: Int)
         case Dynamics(d: String)
@@ -157,26 +157,26 @@ object Music
     the MEvent framework.
     */
 
-    trait ToMusic1[A]
+    trait ToMusic1[A]:
         type MA = Music[A]
         def toMusic1(m: MA): Music1
 
-    object ToMusic1
-        def apply[A](given ToMusic1[A]) = summon[ToMusic1[A]]
+    object ToMusic1:
+        def apply[A](using ToMusic1[A]) = summon[ToMusic1[A]]
 
-    given ToMusic1[Pitch]
+    given ToMusic1[Pitch]:
         def toMusic1(m:MA) = m.mMap((_, Seq.empty))
     
-    given toMusic1_Pitch_Volume: ToMusic1[(Pitch, Volume)]
+    given toMusic1_Pitch_Volume as ToMusic1[(Pitch, Volume)]:
         def toMusic1(m: MA) = m.mMap((p, v) => (p, Seq(NoteAttribute.VolumeAttr(v))))
     
-    given ToMusic1[Note1]
+    given ToMusic1[Note1]:
         def toMusic1(m:MA) = m
     
-    given ToMusic1[AbsPitch]
+    given ToMusic1[AbsPitch]:
         def toMusic1(m:MA) = m.mMap(p => (pitch(p), Seq.empty))
     
-    given toMusic1_AbsPitch_Volume: ToMusic1[(AbsPitch, Volume)]
+    given toMusic1_AbsPitch_Volume as ToMusic1[(AbsPitch, Volume)]:
         def toMusic1(m: MA) = m.mMap((p, v) => (pitch(p), Seq(NoteAttribute.VolumeAttr(v))))
 
     import Primitive._

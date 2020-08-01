@@ -1,8 +1,8 @@
-import utils.{given, _}
+import utils.{given _, _}
 import Random._
 import jazz.JazzTypes._
 import jazz.Utils._
-import euterpea.Music.{given, _}
+import euterpea.Music.{given _, _}
 import euterpea.midi.MEvent._
 import SegCat._
 import PartType._
@@ -15,9 +15,9 @@ Simple walking bass implementation
 Donya Quick
 Translation to Scala by Bart Schuller
 */
-object SimpleWalkingBass
+object SimpleWalkingBass:
 
-    enum WalkingState
+    enum WalkingState:
         case NextRoot(p: AbsPitch)
         case NullState
 

@@ -8,7 +8,7 @@ Scala translation by Bart Schuller
 import QuotientSpaces._
 import OPTIC._
 
-object ModeSpace
+object ModeSpace:
     type AbsMode = Seq[PitchNum]
     type JChord = (AbsChord, AbsMode)
 

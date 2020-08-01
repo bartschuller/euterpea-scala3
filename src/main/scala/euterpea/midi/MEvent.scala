@@ -1,6 +1,6 @@
 package euterpea.midi
-import utils.{given, _}
-import euterpea.Music.{given, _}
+import utils.{given _, _}
+import euterpea.Music.{given _, _}
 import Music._
 import Control._
 import Primitive._
@@ -8,7 +8,7 @@ import NoteAttribute._
 import PhraseAttribute._
 import Dynamic._
 
-object MEvent
+object MEvent:
     case class MEvent (
         eTime: PTime,
         eInst: InstrumentName,

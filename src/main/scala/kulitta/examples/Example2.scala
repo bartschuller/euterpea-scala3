@@ -6,14 +6,14 @@ import CType._
 import Mode._
 import foregrounds.ClassicalFG._
 import PostProc._
-import utils.{given, _}
+import utils.{given _, _}
 import StdGen.mkStdGen
 import euterpea.Music.{line, rest, cut}
 import euterpea.midi.MEvent._
 import euterpea.midi.ToSmidi._
 import smidi._
 
-object Example2
+object Example2:
 
     val rules = rRules1(en, true)
 

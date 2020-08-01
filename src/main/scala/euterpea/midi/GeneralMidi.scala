@@ -4,7 +4,7 @@ import euterpea.Music.InstrumentName
 import InstrumentName._
 import utils.Enum
 
-object GeneralMidi
+object GeneralMidi:
   def fromGM(i: Int): InstrumentName =
     if (i >= 0 && i <= 127)
       Enum[InstrumentName].toEnum(i)
@@ -17,7 +17,7 @@ object GeneralMidi
     case CustomInstrument(_) => 0
     case i => Enum[InstrumentName].fromEnum(i)
 
-  given Enum[InstrumentName]
+  given Enum[InstrumentName]:
     def toEnum(i: Int): InstrumentName =
         i match 
         case 0 => AcousticGrandPiano

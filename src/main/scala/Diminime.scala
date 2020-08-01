@@ -2,9 +2,9 @@
 Diminime
 (c) 2019 Bart Schuller
 */
-import utils.{given, _}
+import utils.{given _, _}
 import Random._
-import euterpea.Music.{given, _}
+import euterpea.Music.{given _, _}
 import Music._
 import Primitive._
 import euterpea.midi.MEvent._
@@ -18,7 +18,7 @@ import smidi._
 import scala.language.implicitConversions
 import Hypnotize.{pickChordPCs, permute, trimTo}
 
-object Diminime
+object Diminime:
     case class DiminiState()
     val nullState = DiminiState()
     type AV = (AbsPitch, Volume)

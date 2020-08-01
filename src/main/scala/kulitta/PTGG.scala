@@ -8,14 +8,14 @@ Probabilistic Temporal Graph Grammar Implementation
 Donya Quick
 Scala translation by Bart Schuller
 */
-object PTGG
+object PTGG:
 /*
 The Term data structure has three constructors: 
     1. NT - a nonterminal that has a symbol and a parameter.
     2. Let - a means of capturing variable instantiation in a Term.
     3. Var - a variable	
 */
-    enum Term[A,B]
+    enum Term[A,B]:
         case NT(a: A, b: B)
         case Let(x: String, a: Sentence[A,B], e: Sentence[A,B])
         case Var(x: String)

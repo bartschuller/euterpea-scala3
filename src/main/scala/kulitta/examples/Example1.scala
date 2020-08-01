@@ -6,14 +6,14 @@ import CType._
 import Mode._
 import foregrounds.ClassicalFG._
 import PostProc._
-import utils.{given, _}
+import utils.{given _, _}
 import StdGen.mkStdGen
 import euterpea.Music.{line, rest}
 import euterpea.midi.MEvent._
 import euterpea.midi.ToSmidi._
 import smidi._
 
-object Example1
+object Example1:
 /*
 Let's start by creating a very simple musical grammar. Kulitta comes with
 a few built-in, but it is possible to define new ones. We'll use some of

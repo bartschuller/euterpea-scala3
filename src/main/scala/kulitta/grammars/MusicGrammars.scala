@@ -6,11 +6,11 @@ Donya Quick
 Scala translation by Bart Schuller
 */
 
-import utils.{given, _}
+import utils.{given _, _}
 import kulitta.PTGG._
 import Term._
 
-object MusicGrammars
+object MusicGrammars:
 /* ==================================
    TYPE SYNONYMS & CONSTANTS
 */
@@ -29,9 +29,9 @@ object MusicGrammars
 
    Alphabet 1: Roman numerals for chords
 */
-    enum CType
+    enum CType:
         case I, II, III, IV, V, VI, VII
-    object CType
+    object CType:
         def i[B](p:B) = NT(I, p)
         def ii[B](p:B) = NT(II, p)
         def iii[B](p:B) = NT(III, p)
@@ -39,7 +39,7 @@ object MusicGrammars
         def v[B](p:B) = NT(V, p)
         def vi[B](p:B) = NT(VI, p)
         def vii[B](p:B) = NT(VII, p)
-    given Enum[CType]
+    given Enum[CType]:
         def fromEnum(c: CType): Int = c.ordinal
         def toEnum(i: Int): CType = CType.values(i)
         def enumFrom(c: CType): Seq[CType] =
@@ -47,7 +47,7 @@ object MusicGrammars
 
 /* Alphabet 1: from Rohrmeier's paper "Towards a generative syntax of tonal harmony" */
 
-    enum RTerm
+    enum RTerm:
         case Piece, P // piece/phrase (or P=Plagal for Kulitta's reuse of P)
         case TR, DR, SR // regions
         case T, D, S, TP, TCP, SP, DP // chord functions
@@ -66,7 +66,7 @@ allows for checking things like whether the symbols is the LAST in a
 sentence, at the midpoint, etc.
 */
     import Mode._
-    case class MP(dur: Dur, mode: Mode, key: Int, onset: Dur, sDur: Dur)
+    case class MP(dur: Dur, mode: Mode, key: Int, onset: Dur, sDur: Dur):
         // It is also useful to have tests for MP values and modifiers for them.
         def isMaj: Boolean = mode == Major
         def isMin: Boolean = mode == Minor
@@ -151,7 +151,7 @@ Basic modulations on scale degrees for Major and Minor systems
 Modes include the seven usual derivatives of the C-major scale along with
 chromatic and custom options. Note that Major=Ionian and Minor=Aeoloean.
 */
-    enum Mode
+    enum Mode:
         case Major, Dorian, Phrygian, Lydian, Mixolydian, Minor, Locrian, Chromatic
         case Custom(aps: Seq[AbsPitch])
 /*
@@ -162,7 +162,7 @@ The enumFrom function is defined to loop around. For example:
 */
     val allEnumModes = Seq(Major, Dorian, Phrygian, Lydian, Mixolydian, Minor, Locrian)
 
-    given Enum[Mode]
+    given Enum[Mode]:
         def toEnum(i: Int): Mode = if i >= 0 && i <= 6 then allEnumModes(i)
                                    else sys.error("Only modes 0-6 are enumerable.")
         def fromEnum(a: Mode): Int = a match
