@@ -1,8 +1,8 @@
 import org.junit.Test
 import org.junit.Assert._
-import utils.{given, _}
+import utils.{given _, _}
 
-class RatTests
+class RatTests:
     @Test def construction(): Unit =
         import scala.language.implicitConversions
         val r1: Rat = 1
