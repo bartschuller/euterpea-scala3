@@ -1,6 +1,6 @@
 package euterpea
-import utils.{given _, _}
-import scala.language.implicitConversions
+import utils.{given, _}
+import scala.language.experimental.genericNumberLiterals
 
 object Music:
     type AbsPitch = Int
@@ -36,7 +36,8 @@ object Music:
             case :=:(m1, m2) => m1.mMap(f) :=: m2.mMap(f)
             case Modify(c, m) => Modify(c, m.mMap(f))
     object Music:
-        def [A](m1: Music[A]) :+: (m2: => Music[A]): Music[A] = Music.:+:(m1 #:: LazyList(m2))
+      extension [A](m1: Music[A])
+        def :+: (m2: => Music[A]): Music[A] = Music.:+:(m1 #:: LazyList(m2))
 
     enum Control:
         case Tempo(r: Rat) // scale the tempo

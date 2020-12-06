@@ -1,7 +1,8 @@
 package jazz
-import utils.{given _, _}
-import euterpea.Music.{given _, _}
+import utils.{given, _}
+import euterpea.Music.{given, _}
 import Music._
+import scala.language.experimental.genericNumberLiterals
 
 object JazzTypes:
 
@@ -41,7 +42,7 @@ object JazzTypes:
     enum SegStyle[+A]:
         case Free
         case FixedPitch(piches: Seq[AbsPitch])
-        case FixedMusic(music: Music[A])
+        case FixedMusic[B](music: Music[B]) extends SegStyle[B]
 
     enum SegCat:
         case Intro, Regular, Bridge, Ending, End

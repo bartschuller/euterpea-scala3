@@ -9,7 +9,7 @@ Post processing module to turn Terms into music using Euterpea.
 import PTGG._
 import grammars.MusicGrammars._
 import chordspaces.OPTIC._
-import utils.{given _, _}
+import utils.{given, _}
 import euterpea.Music.{Mode => _, _}
 
 object PostProc:
@@ -25,9 +25,12 @@ Intermediate types:
 /*
 Accessing the members of a TNote:
 */
-    def (kdp: TNote) tnK: Key = kdp._1
-    def (kdp: TNote) tnD: Dur = kdp._2
-    def (kdp: TNote) tnP: AbsPitch = kdp._3
+    extension (kdp: TNote)
+      def tnK: Key = kdp._1
+    extension (kdp: TNote)
+      def tnD: Dur = kdp._2
+    extension (kdp: TNote)
+      def tnP: AbsPitch = kdp._3
     def newP[A,B,C](kdp: (A,B,C), pp: C): (A,B,C) = kdp.copy(_3 = pp)
 /*
 The goal using these intermediate types is the following:

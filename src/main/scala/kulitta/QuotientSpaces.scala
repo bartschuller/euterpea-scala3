@@ -1,7 +1,7 @@
 package kulitta
 
-import utils.{given _, _}
-import Random.{given _, _}
+import utils.{given, _}
+import Random.{given, _}
 
 object QuotientSpaces:
     type EqClass[A] = Seq[A] // equivalence class
@@ -20,10 +20,11 @@ First we define the "slash" operator for S/R.
 >     let sx = [y | y <- xs, r y (head xs)] 
 >     in  sx : [z | z <- xs, not (elem z sx)] // r
 */
-    def [A](xs: Seq[A]) \ (r: EqRel[A]): QSpace[A] =
-        if xs.isEmpty then Seq.empty else
-            val sx = xs.filter(r(_, xs.head))
-            sx +: xs.filterNot(sx.contains) \ r
+    extension [A](xs: Seq[A])
+        def  \ (r: EqRel[A]): QSpace[A] =
+            if xs.isEmpty then Seq.empty else
+                val sx = xs.filter(r(_, xs.head))
+                sx +: xs.filterNot(sx.contains) \ r
 /*
 The eqClass function is used to find the equivalence class of an
 element, x, given a quotient space and the relation used to form it.

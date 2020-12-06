@@ -6,9 +6,10 @@ Donya Quick
 Scala translation by Bart Schuller
 */
 
-import utils.{given _, _}
+import utils.{given, _}
 import kulitta.PTGG._
 import Term._
+import scala.language.experimental.genericNumberLiterals
 
 object MusicGrammars:
 /* ==================================

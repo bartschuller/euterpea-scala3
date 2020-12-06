@@ -5,15 +5,16 @@ Classical Foreground Module
 Donya Quick
 Scala translation by Bart Schuller
 */
-import utils.{given _, _}
+import utils.{given, _}
 import QuotientSpaces._
 import chordspaces.OPTIC._
 import PostProc._
 import Search._
 import Constraints._
 import grammars.MusicGrammars._
-import Random.{given _, _}
+import Random.{given, _}
 import euterpea.Music.{Music, Pitch, InstrumentName}
+import scala.language.experimental.genericNumberLiterals
 
 object ClassicalFG:
     case class CConstants(

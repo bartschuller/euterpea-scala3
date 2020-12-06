@@ -6,12 +6,13 @@ import CType._
 import Mode._
 import foregrounds.ClassicalFG._
 import PostProc._
-import utils.{given _, _}
+import utils.{given, _}
 import StdGen.mkStdGen
 import euterpea.Music.{line, rest}
 import euterpea.midi.MEvent._
 import euterpea.midi.ToSmidi._
 import smidi._
+import scala.language.experimental.genericNumberLiterals
 
 object Example1:
 /*

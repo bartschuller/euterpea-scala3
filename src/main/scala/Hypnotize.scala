@@ -11,9 +11,9 @@ The implementation here uses type Music (AbsPitch,Volume) to
 achieve more diverse textures (in Music AbsPitch, the volumes
 are all constant). 
 */
-import utils.{given _, _}
+import utils.{given, _}
 import Random._
-import euterpea.Music.{given _, _}
+import euterpea.Music.{given, _}
 import Music._
 import Primitive._
 import euterpea.midi.MEvent._
@@ -24,7 +24,7 @@ import SegCat._
 import InstrumentName._
 import euterpea.midi.ToSmidi._
 import smidi._
-import scala.language.implicitConversions
+import scala.language.experimental.genericNumberLiterals
 
 object Hypnotize:
 /*

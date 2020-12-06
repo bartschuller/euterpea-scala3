@@ -1,7 +1,7 @@
 package kulitta
 package foregrounds
 
-import utils.{given _, _}
+import utils.{given, _}
 import chordspaces.OPTIC._
 import QuotientSpaces._
 import PostProc._
@@ -10,6 +10,7 @@ import Constraints._
 import ClassicalFG._
 import euterpea.Music._
 import Music._
+import scala.language.experimental.genericNumberLiterals
 
 object SimplePianoFG:
     def simplePianoFG1x(triads: List[TChord], g0: StdGen, k: Constraints): (Music[Pitch], Music[Pitch]) =

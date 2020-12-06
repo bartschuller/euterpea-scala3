@@ -1,14 +1,15 @@
-import utils.{given _, _}
+import utils.{given, _}
 import Random._
 import jazz.JazzTypes._
 import jazz.Utils._
-import euterpea.Music.{given _, _}
+import euterpea.Music.{given, _}
 import euterpea.midi.MEvent._
 import SegCat._
 import PartType._
 import InstrumentName._
 import euterpea.midi.ToSmidi._
 import smidi._
+import scala.language.experimental.genericNumberLiterals
 
 /*
 Minimal Solo Trading Example

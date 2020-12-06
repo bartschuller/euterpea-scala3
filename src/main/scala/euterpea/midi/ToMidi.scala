@@ -1,5 +1,5 @@
 package euterpea.midi
-import utils.{given _, _}
+import utils.{given, _}
 import MEvent._
 import Midi._
 import Message._

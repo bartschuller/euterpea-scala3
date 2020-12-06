@@ -1,10 +1,12 @@
 package euterpea.midi
 import smidi._
-import utils.{given _, _}
+import utils.{given, _}
 import MEvent._
 import GeneralMidi._
 import euterpea.Music.InstrumentName
 import InstrumentName.Percussion
+import scala.language.experimental.genericNumberLiterals
+
 object ToSmidi:
     type Channel = Int
     type ProgNum = Int

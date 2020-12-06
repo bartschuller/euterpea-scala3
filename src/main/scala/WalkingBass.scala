@@ -6,11 +6,11 @@ Scala translation by Bart Schuller
 The implementation here is much like in SimpleWalkingBass.lhs, 
 but it adds ornaments between some pitches.
 */
-import utils.{given _, _}
+import utils.{given, _}
 import Random._
 import jazz.JazzTypes._
 import jazz.Utils._
-import euterpea.Music.{given _, _}
+import euterpea.Music.{given, _}
 import Music._
 import euterpea.midi.MEvent._
 import SegCat._
@@ -19,6 +19,7 @@ import InstrumentName._
 import euterpea.midi.ToSmidi._
 import smidi._
 import SimpleWalkingBass._
+import scala.language.experimental.genericNumberLiterals
 
 /*
 First, the ornaments function. This works by taking a list of 

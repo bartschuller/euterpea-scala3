@@ -1,6 +1,6 @@
 package kulitta
 package gui
-import utils.{given _, _}
+import utils.{given, _}
 import StdGen._
 import GUIBackend._
 import Style._

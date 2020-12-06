@@ -1,9 +1,9 @@
 package kulitta
 package gui
 
-import utils.{given _, _}
+import utils.{given, _}
 import StdGen._
-import Random.{given _, _}
+import Random.{given, _}
 import foregrounds.JazzFG._
 import foregrounds.ClassicalFG._
 import foregrounds.SimplePianoFG._
@@ -20,6 +20,7 @@ import euterpea.Music.{Music, Control, Pitch, Volume, addVolume}
 import Music._
 import Control.Instrument
 import java.io.File
+import scala.language.experimental.genericNumberLiterals
 
 object GUIBackend:
     enum Style:

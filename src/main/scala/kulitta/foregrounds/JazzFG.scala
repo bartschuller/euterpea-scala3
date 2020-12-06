@@ -9,12 +9,13 @@ import PostProc._
 import QuotientSpaces._
 import Constraints._
 import Search._
-import utils.{given _, _}
+import utils.{given, _}
 import Random._
 import euterpea.Music.{Music,Pitch, rest, note, chord, pitch, instrument, InstrumentName, addVolume, Volume}
 import Music.:+:
 import InstrumentName._
 import ClassicalFG._
+import scala.language.experimental.genericNumberLiterals
 
 /*
 Simple Jazz Foreground Algorithms

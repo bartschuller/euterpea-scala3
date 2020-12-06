@@ -2,14 +2,16 @@ package utils
 
 trait IntOps:
     /** modulus with positive result for positive b */
-    def (a: Int) mod (b: Int) =
+    extension (a: Int)
+      def mod (b: Int) =
         val x = a % b; if (x < 0) x + b else x
 given IntOps
 
 trait SeqOps:
     /** combine to elements of 2 sequences using a function */
-    def [A,B,C](as: Seq[A]) zipWith (bs: Seq[B]) (f: (A, B) => C): Seq[C] =
-        as.zip(bs).map((a, b) => f(a,b))
+    extension [A,B,C](as: Seq[A])
+        def zipWith (bs: Seq[B]) (f: (A, B) => C): Seq[C] =
+            as.zip(bs).map((a, b) => f(a,b))
 given SeqOps
 
 trait RandomGen[G <: RandomGen[_]]:
@@ -94,7 +96,7 @@ object Enum:
     def apply[A](using Enum[A]) = summon[Enum[A]]
 
 // later make it generic on scala.math.Integral?
-class Rat(x: Int, y: Int) derives Eql:
+class Rat(x: Int, y: Int) derives CanEqual:
     private def gcd(a: Int, b: Int): Int = if (b == 0) a else gcd(b, a % b)
     private val g = gcd(x, y)
     val (numer, denom) =

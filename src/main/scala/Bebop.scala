@@ -9,9 +9,10 @@ This file demonstrates 2 things:
 
 Part functions are given for drums, bass, chords (piano), and solo.
 */
-import utils.{given _, _}
+import utils.{given, _}
+import Rat.given
 import Random._
-import euterpea.Music.{given _, _}
+import euterpea.Music.{given, _}
 import Music._
 import euterpea.midi.MEvent._
 import jazz.JazzTypes._
@@ -20,7 +21,7 @@ import SegCat._
 import InstrumentName._
 import euterpea.midi.ToSmidi._
 import smidi._
-import scala.language.implicitConversions
+import scala.language.experimental.genericNumberLiterals
 
 object Bebop:
 /*

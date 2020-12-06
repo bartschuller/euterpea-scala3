@@ -1,5 +1,5 @@
 package jazz
-import utils.{given _, _}
+import utils.{given, _}
 import jazz.JazzTypes._
 import euterpea.Music._
 import Primitive._

@@ -14,8 +14,8 @@ harmony, but the lead makes use of a very simplistic piece of state
 information (the last pitch played).
 */
 
-import utils.{given _, _}
-import euterpea.Music.{given _, _}
+import utils.{given, _}
+import euterpea.Music.{given, _}
 import Music._
 import euterpea.midi.MEvent._
 import jazz.JazzTypes._
@@ -25,7 +25,7 @@ import PartType._
 import InstrumentName._
 import euterpea.midi.ToSmidi._
 import smidi._
-import scala.language.implicitConversions
+import scala.language.experimental.genericNumberLiterals
 
 object SimpleBossa:
 /*
