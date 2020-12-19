@@ -17,7 +17,7 @@ object GeneralMidi:
     case CustomInstrument(_) => 0
     case i => Enum[InstrumentName].fromEnum(i)
 
-  given Enum[InstrumentName]:
+  given Enum[InstrumentName] with
     def toEnum(i: Int): InstrumentName =
         i match 
         case 0 => AcousticGrandPiano

@@ -165,19 +165,19 @@ object Music:
     object ToMusic1:
         def apply[A](using ToMusic1[A]) = summon[ToMusic1[A]]
 
-    given ToMusic1[Pitch]:
+    given ToMusic1[Pitch] with
         def toMusic1(m:MA) = m.mMap((_, Seq.empty))
     
-    given toMusic1_Pitch_Volume as ToMusic1[(Pitch, Volume)]:
+    given toMusic1_Pitch_Volume: ToMusic1[(Pitch, Volume)] with
         def toMusic1(m: MA) = m.mMap((p, v) => (p, Seq(NoteAttribute.VolumeAttr(v))))
     
-    given ToMusic1[Note1]:
+    given ToMusic1[Note1] with
         def toMusic1(m:MA) = m
     
-    given ToMusic1[AbsPitch]:
+    given ToMusic1[AbsPitch] with
         def toMusic1(m:MA) = m.mMap(p => (pitch(p), Seq.empty))
     
-    given toMusic1_AbsPitch_Volume as ToMusic1[(AbsPitch, Volume)]:
+    given toMusic1_AbsPitch_Volume: ToMusic1[(AbsPitch, Volume)] with
         def toMusic1(m: MA) = m.mMap((p, v) => (pitch(p), Seq(NoteAttribute.VolumeAttr(v))))
 
     import Primitive._

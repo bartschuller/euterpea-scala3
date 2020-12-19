@@ -40,7 +40,7 @@ object MusicGrammars:
         def v[B](p:B) = NT(V, p)
         def vi[B](p:B) = NT(VI, p)
         def vii[B](p:B) = NT(VII, p)
-    given Enum[CType]:
+    given Enum[CType] with
         def fromEnum(c: CType): Int = c.ordinal
         def toEnum(i: Int): CType = CType.values(i)
         def enumFrom(c: CType): Seq[CType] =
@@ -163,7 +163,7 @@ The enumFrom function is defined to loop around. For example:
 */
     val allEnumModes = Seq(Major, Dorian, Phrygian, Lydian, Mixolydian, Minor, Locrian)
 
-    given Enum[Mode]:
+    given Enum[Mode] with
         def toEnum(i: Int): Mode = if i >= 0 && i <= 6 then allEnumModes(i)
                                    else sys.error("Only modes 0-6 are enumerable.")
         def fromEnum(a: Mode): Int = a match

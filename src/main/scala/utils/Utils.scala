@@ -5,14 +5,14 @@ trait IntOps:
     extension (a: Int)
       def mod (b: Int) =
         val x = a % b; if (x < 0) x + b else x
-given IntOps
+given IntOps with {}
 
 trait SeqOps:
     /** combine to elements of 2 sequences using a function */
     extension [A,B,C](as: Seq[A])
         def zipWith (bs: Seq[B]) (f: (A, B) => C): Seq[C] =
             as.zip(bs).map((a, b) => f(a,b))
-given SeqOps
+given SeqOps with {}
 
 trait RandomGen[G <: RandomGen[_]]:
     def next: (Int, G)
@@ -43,7 +43,7 @@ trait Bounded[A]:
     def maxBound: A
 
 object Bounded:
-    given Bounded[Int]:
+    given Bounded[Int] with
         def minBound = Integer.MIN_VALUE
         def maxBound = Integer.MAX_VALUE
 
@@ -78,13 +78,13 @@ object Random:
         val (g1, g2) = g.split
         g1 #:: splitN(g2)
     
-    given Random[Int]:
+    given Random[Int] with
         def randomR[G <: RandomGen[_]](range: (Int, Int), g: RandomGen[G]): (Int, G) =
             g.nextBetween(range._1, range._2)
         override def random[G <: RandomGen[_], B <: Int : Bounded](g: RandomGen[G]): (Int, G) =
             g.next
         
-    given Random[Double]:
+    given Random[Double] with
         def randomR[G <: RandomGen[_]](range: (Double, Double), g: RandomGen[G]): (Double, G) =
             g.nextBetween(range._1, range._2)
 
@@ -135,7 +135,7 @@ object Rat:
 end Rat
 
 import scala.util.FromDigits
-given FromDigits[Rat]:
+given FromDigits[Rat] with
     def fromDigits(digits: String): Rat = Rat(digits.toInt)
 
 /**
