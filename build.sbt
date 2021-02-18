@@ -1,6 +1,6 @@
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
-val dottyVersion = "3.0.0-M3"
+val dottyVersion = "3.0.0-RC1"
 
 lazy val root = project
   .in(file("."))
